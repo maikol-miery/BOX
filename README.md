@@ -1,7 +1,6 @@
-# Box - Industrias Rodanol, S.A.
+# Box
 
-Sistema de Gestión Integral de Activos Informáticos, Mantenimientos Preventivos, Insumos de Impresión, Préstamos y Residuos Electrónicos (RAEE) para el departamento de IT de **Industrias Rodanol, S.A.** Desarrollado como Progressive Web App (PWA) responsiva para escritorio y dispositivos móviles en planta.
-
+Sistema de Gestión Integral de Activos Informáticos, Mantenimientos Preventivos, Insumos de Impresión, Préstamos y Residuos Electrónicos (RAEE) para el departamento de IT.
 ---
 
 ## 🛠️ Stack Tecnológico
