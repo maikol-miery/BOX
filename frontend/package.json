@@ -1,0 +1,21 @@
+{
+  "name": "box-rodanol-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "desarrollo": "nuxt dev --host 0.0.0.0 --port 3000",
+    "construir": "nuxt build",
+    "vista-previa": "nuxt preview"
+  },
+  "dependencies": {
+    "@nuxt/ui": "^2.18.4",
+    "html5-qrcode": "^2.3.8",
+    "nuxt": "^3.13.0",
+    "qrcode": "^1.5.4",
+    "vue": "^3.4.38"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.5",
+    "typescript": "^5.5.4"
+  }
+}

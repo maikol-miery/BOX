@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-950 text-slate-100 antialiased selection:bg-violet-600 selection:text-white;
+    background-image:
+      radial-gradient(circle at 15% 15%, rgba(76, 29, 149, 0.32) 0%, transparent 45%),
+      radial-gradient(circle at 85% 80%, rgba(109, 40, 217, 0.18) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@layer components {
+  .tarjeta-cristal {
+    @apply bg-slate-900/60 backdrop-blur-md border border-violet-500/20 shadow-xl shadow-violet-500/5 rounded-2xl;
+  }
+
+  .tarjeta-antigravity {
+    @apply bg-slate-900/60 backdrop-blur-md border border-violet-500/20 shadow-xl shadow-violet-500/5 rounded-2xl;
+  }
+}
+
+/* Estilos exclusivos para impresión de etiquetas QR y Actas RAEE */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .ocultar-en-impresion {
+    display: none !important;
+  }
+
+  .mostrar-solo-impresion {
+    display: block !important;
+  }
+}

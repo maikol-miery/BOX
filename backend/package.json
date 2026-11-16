@@ -1,0 +1,21 @@
+{
+  "name": "box-rodanol-backend",
+  "version": "1.0.0",
+  "description": "API RESTful del Sistema Box - Gestión de Activos Informáticos, Mantenimientos, Insumos y Custodia IT de Industrias Rodanol, S.A.",
+  "main": "src/app.js",
+  "type": "module",
+  "scripts": {
+    "iniciar": "node src/app.js",
+    "desarrollo": "node --watch src/app.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0",
+    "express": "^4.19.2",
+    "pg": "^8.12.0",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.3",
+    "zod": "^3.23.8"
+  }
+}
