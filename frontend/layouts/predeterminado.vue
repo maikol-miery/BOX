@@ -232,17 +232,19 @@ const alEscanearCodigo = async (codigo: string) => {
       </div>
     </main>
 
-    <!-- Único Modal de Escáner QR -->
-    <UModal
-      v-model="modalEscaner"
-      :ui="{ width: 'sm:max-w-xl' }"
-    >
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
+    <!-- Modal de Escáner QR (Nativo Vue: se cierra 100% garantizado sin congelarse en Android) -->
+    <Teleport to="body">
+      <div
+        v-if="modalEscaner"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+        @click.self="cerrarModalEscaner"
+      >
+        <div class="relative w-full max-w-lg bg-slate-900 border border-violet-500/30 rounded-2xl shadow-2xl p-5 text-slate-100 max-h-[90vh] overflow-y-auto">
+          <!-- Cabecera del Escáner -->
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-violet-500/20">
             <div class="flex items-center gap-2">
               <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
-              <h3 class="font-bold text-white">Escáner de Activos QR en Planta</h3>
+              <h3 class="font-bold text-white text-base">Escáner de Activos QR en Planta</h3>
             </div>
             <UButton
               color="gray"
@@ -251,13 +253,11 @@ const alEscanearCodigo = async (codigo: string) => {
               @click="cerrarModalEscaner"
             />
           </div>
-        </template>
 
-        <ComunEscanerQr
-          v-if="modalEscaner"
-          @codigo-detectado="alEscanearCodigo"
-        />
-      </UCard>
-    </UModal>
+          <!-- Componente del Escáner -->
+          <ComunEscanerQr @codigo-detectado="alEscanearCodigo" />
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
