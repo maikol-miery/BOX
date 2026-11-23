@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const rutaActual = useRoute();
 const menuMovilAbierto = ref(false);
+const modalEscaner = ref(false);
+const procesandoEscaneo = ref(false);
 
 const enlacesNavegacion = [
   {
@@ -8,12 +10,6 @@ const enlacesNavegacion = [
     ruta: '/',
     icono: 'i-heroicons-squares-2x2',
     descripcion: 'Métricas y alertas'
-  },
-  {
-    nombre: 'Escáner QR en Planta',
-    ruta: '/escanear',
-    icono: 'i-heroicons-camera',
-    descripcion: 'Cámara y búsqueda rápida'
   },
   {
     nombre: 'Parque Informático',
@@ -53,6 +49,32 @@ const enlacesNavegacion = [
     descripcion: 'Desincorporación y reciclaje'
   }
 ];
+
+const abrirModalEscaner = () => {
+  modalEscaner.value = true;
+};
+
+const cerrarModalEscaner = () => {
+  modalEscaner.value = false;
+};
+
+const alEscanearCodigo = async (codigo: string) => {
+  if (procesandoEscaneo.value) return;
+  procesandoEscaneo.value = true;
+
+  // 1. Cerrar el modal de inmediato
+  modalEscaner.value = false;
+
+  // 2. Pequeño delay (350ms) para que HeadlessUI termine de cerrar y desmontar el modal sin trabar la pantalla
+  await new Promise((resolver) => setTimeout(resolver, 350));
+
+  // 3. Redireccionar de forma limpia y directa a la Hoja de Vida
+  try {
+    await navigateTo(`/activos/${encodeURIComponent(codigo)}`);
+  } finally {
+    procesandoEscaneo.value = false;
+  }
+};
 </script>
 
 <template>
@@ -61,7 +83,7 @@ const enlacesNavegacion = [
     <aside
       class="ocultar-en-impresion hidden lg:flex lg:w-72 lg:flex-col lg:fixed lg:inset-y-0 bg-slate-900/75 backdrop-blur-xl border-r border-violet-500/20 z-30"
     >
-      <!-- Cabecera de Marca con Efecto Antigravity -->
+      <!-- Cabecera de Marca -->
       <div class="p-6 border-b border-violet-500/20 flex items-center gap-4">
         <div
           class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-500 flex items-center justify-center shadow-lg shadow-violet-500/30"
@@ -77,10 +99,9 @@ const enlacesNavegacion = [
         </div>
       </div>
 
-      <!-- Botón Rápido de Escáner QR en Planta -->
+      <!-- Botón de Escáner QR -->
       <div class="px-4 pt-4">
         <UButton
-          to="/escanear"
           block
           size="lg"
           color="violet"
@@ -88,6 +109,7 @@ const enlacesNavegacion = [
           icon="i-heroicons-camera"
           label="Escanear Etiqueta QR"
           class="shadow-lg shadow-violet-600/25 font-semibold"
+          @click="abrirModalEscaner"
         />
       </div>
 
@@ -151,11 +173,11 @@ const enlacesNavegacion = [
       </div>
 
       <UButton
-        to="/escanear"
         color="violet"
         size="sm"
         icon="i-heroicons-qr-code"
         label="Escanear QR"
+        @click="abrirModalEscaner"
       />
     </header>
 
@@ -209,5 +231,33 @@ const enlacesNavegacion = [
         <slot />
       </div>
     </main>
+
+    <!-- Único Modal de Escáner QR -->
+    <UModal
+      v-model="modalEscaner"
+      :ui="{ width: 'sm:max-w-xl' }"
+    >
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
+              <h3 class="font-bold text-white">Escáner de Activos QR en Planta</h3>
+            </div>
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark"
+              @click="cerrarModalEscaner"
+            />
+          </div>
+        </template>
+
+        <ComunEscanerQr
+          v-if="modalEscaner"
+          @codigo-detectado="alEscanearCodigo"
+        />
+      </UCard>
+    </UModal>
   </div>
 </template>
