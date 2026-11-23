@@ -1,12 +1,6 @@
 <script setup lang="ts">
 const rutaActual = useRoute();
 const menuMovilAbierto = ref(false);
-const modalEscanerGlobal = ref(false);
-const activoEscaneadoGlobal = ref<any>(null);
-const cargandoHojaVida = ref(false);
-
-const { peticion } = usarApi();
-const notificaciones = useToast();
 
 const enlacesNavegacion = [
   {
@@ -14,6 +8,12 @@ const enlacesNavegacion = [
     ruta: '/',
     icono: 'i-heroicons-squares-2x2',
     descripcion: 'Métricas y alertas'
+  },
+  {
+    nombre: 'Escáner QR en Planta',
+    ruta: '/escanear',
+    icono: 'i-heroicons-camera',
+    descripcion: 'Cámara y búsqueda rápida'
   },
   {
     nombre: 'Parque Informático',
@@ -53,21 +53,6 @@ const enlacesNavegacion = [
     descripcion: 'Desincorporación y reciclaje'
   }
 ];
-
-const abrirEscanerGlobal = () => {
-  activoEscaneadoGlobal.value = null;
-  modalEscanerGlobal.value = true;
-};
-
-const cerrarModalGlobal = () => {
-  modalEscanerGlobal.value = false;
-  activoEscaneadoGlobal.value = null;
-};
-
-const alEscanearCodigoGlobal = async (codigoDetectado: string) => {
-  modalEscanerGlobal.value = false;
-  await navigateTo(`/activos/${encodeURIComponent(codigoDetectado)}`);
-};
 </script>
 
 <template>
@@ -95,6 +80,7 @@ const alEscanearCodigoGlobal = async (codigoDetectado: string) => {
       <!-- Botón Rápido de Escáner QR en Planta -->
       <div class="px-4 pt-4">
         <UButton
+          to="/escanear"
           block
           size="lg"
           color="violet"
@@ -102,7 +88,6 @@ const alEscanearCodigoGlobal = async (codigoDetectado: string) => {
           icon="i-heroicons-camera"
           label="Escanear Etiqueta QR"
           class="shadow-lg shadow-violet-600/25 font-semibold"
-          @click="abrirEscanerGlobal"
         />
       </div>
 
@@ -166,11 +151,11 @@ const alEscanearCodigoGlobal = async (codigoDetectado: string) => {
       </div>
 
       <UButton
+        to="/escanear"
         color="violet"
         size="sm"
         icon="i-heroicons-qr-code"
         label="Escanear QR"
-        @click="abrirEscanerGlobal"
       />
     </header>
 
@@ -224,30 +209,5 @@ const alEscanearCodigoGlobal = async (codigoDetectado: string) => {
         <slot />
       </div>
     </main>
-
-    <!-- Modal de Escáner QR -->
-    <UModal v-model="modalEscanerGlobal">
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
-              <h3 class="font-bold text-white">Escáner de Activos QR en Planta</h3>
-            </div>
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-x-mark"
-              @click="modalEscanerGlobal = false"
-            />
-          </div>
-        </template>
-
-        <ComunEscanerQr
-          v-if="modalEscanerGlobal"
-          @codigo-detectado="alEscanearCodigoGlobal"
-        />
-      </UCard>
-    </UModal>
   </div>
 </template>

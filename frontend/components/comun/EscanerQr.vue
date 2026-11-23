@@ -13,6 +13,18 @@ const procesandoFoto = ref(false);
 const inputFoto = ref<HTMLInputElement | null>(null);
 let instanciaLector: Html5Qrcode | null = null;
 
+const detenerCamara = async () => {
+  if (instanciaLector) {
+    try {
+      if (instanciaLector.isScanning) {
+        await instanciaLector.stop();
+      }
+      instanciaLector.clear();
+    } catch {}
+    camaraActiva.value = false;
+  }
+};
+
 const iniciarCamara = async () => {
   errorCamara.value = '';
 
@@ -24,6 +36,7 @@ const iniciarCamara = async () => {
   }
 
   try {
+    await detenerCamara();
     instanciaLector = new Html5Qrcode(idContenedorLector);
     await instanciaLector.start(
       { facingMode: 'environment' },
@@ -31,8 +44,8 @@ const iniciarCamara = async () => {
         fps: 10,
         qrbox: { width: 230, height: 230 }
       },
-      (textoDecodificado) => {
-        detenerCamara();
+      async (textoDecodificado) => {
+        await detenerCamara();
         emitir('codigo-detectado', textoDecodificado.trim().toUpperCase());
       },
       () => {}
@@ -41,16 +54,6 @@ const iniciarCamara = async () => {
   } catch (err: any) {
     errorCamara.value =
       'No se pudo iniciar el video en vivo (requiere HTTPS en red local). Usa el botón "📸 Tomar Foto al QR" para abrir tu cámara directamente.';
-    camaraActiva.value = false;
-  }
-};
-
-const detenerCamara = async () => {
-  if (instanciaLector && camaraActiva.value) {
-    try {
-      await instanciaLector.stop();
-      await instanciaLector.clear();
-    } catch {}
     camaraActiva.value = false;
   }
 };
@@ -70,8 +73,9 @@ const procesarFotoCapturada = async (evento: Event) => {
     if (!instanciaLector) {
       instanciaLector = new Html5Qrcode(idContenedorLector);
     }
-    const textoDecodificado = await instanciaLector.scanFile(archivo, true);
-    detenerCamara();
+    // scanFile con false para no sobrecargar el DOM con la foto completa
+    const textoDecodificado = await instanciaLector.scanFile(archivo, false);
+    await detenerCamara();
     emitir('codigo-detectado', textoDecodificado.trim().toUpperCase());
   } catch (err: any) {
     errorCamara.value =
@@ -82,9 +86,9 @@ const procesarFotoCapturada = async (evento: Event) => {
   }
 };
 
-const enviarCodigoManual = () => {
+const enviarCodigoManual = async () => {
   if (!codigoManual.value.trim()) return;
-  detenerCamara();
+  await detenerCamara();
   emitir('codigo-detectado', codigoManual.value.trim().toUpperCase());
 };
 
@@ -92,14 +96,14 @@ onMounted(() => {
   iniciarCamara();
 });
 
-onBeforeUnmount(() => {
-  detenerCamara();
+onBeforeUnmount(async () => {
+  await detenerCamara();
 });
 </script>
 
 <template>
   <div class="space-y-4">
-    <!-- Input oculto que invoca la cámara nativa de Android/iOS (funciona 100% sobre HTTP sin restricción de navegador) -->
+    <!-- Input oculto para cámara nativa en caso de HTTP -->
     <input
       ref="inputFoto"
       type="file"
@@ -109,17 +113,17 @@ onBeforeUnmount(() => {
       @change="procesarFotoCapturada"
     />
 
-    <!-- Visor de video continuo -->
+    <!-- Visor de video de la cámara -->
     <div
       :id="idContenedorLector"
-      class="w-full min-h-[200px] rounded-xl overflow-hidden bg-slate-950 border border-violet-500/30 flex items-center justify-center relative"
+      class="w-full min-h-[220px] rounded-xl overflow-hidden bg-slate-950 border border-violet-500/30 flex items-center justify-center relative"
     >
       <div v-if="!camaraActiva && !errorCamara" class="text-xs text-slate-400 p-4 text-center">
         Iniciando sensor de cámara...
       </div>
     </div>
 
-    <!-- Botón directo de Captura de Foto con Cámara Nativa (Funciona siempre en móvil por HTTP) -->
+    <!-- Botón directo de Captura de Foto con Cámara Nativa -->
     <UButton
       block
       size="lg"

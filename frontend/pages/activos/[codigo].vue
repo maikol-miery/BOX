@@ -65,6 +65,12 @@ onMounted(() => {
 
       <div class="flex items-center gap-2">
         <UButton
+          to="/escanear"
+          color="violet"
+          icon="i-heroicons-camera"
+          label="Escanear Otro"
+        />
+        <UButton
           to="/activos/etiquetas"
           color="gray"
           variant="soft"
