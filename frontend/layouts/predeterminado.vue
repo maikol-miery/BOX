@@ -50,31 +50,70 @@ const enlacesNavegacion = [
   }
 ];
 
+// Limpia cualquier modal huérfano que HeadlessUI o Teleport hayan dejado pegado en document.body
+const purgarModalesPegados = () => {
+  if (typeof document === 'undefined') return;
+
+  Array.from(document.body.children).forEach((elemento) => {
+    if (
+      elemento.id !== '__nuxt' &&
+      (elemento.id === 'headlessui-portal-root' ||
+        elemento.hasAttribute('data-headlessui-portal') ||
+        elemento.textContent?.includes('Escáner de Activos QR en Planta'))
+    ) {
+      elemento.remove();
+    }
+  });
+
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+};
+
+if (import.meta.client) {
+  purgarModalesPegados();
+}
+
 const abrirModalEscaner = () => {
+  purgarModalesPegados();
   modalEscaner.value = true;
 };
 
 const cerrarModalEscaner = () => {
   modalEscaner.value = false;
+  purgarModalesPegados();
 };
 
 const alEscanearCodigo = async (codigo: string) => {
   if (procesandoEscaneo.value) return;
   procesandoEscaneo.value = true;
 
-  // 1. Cerrar el modal de inmediato
+  // 1. Cerrar el modal y limpiar cualquier capa en body
   modalEscaner.value = false;
+  purgarModalesPegados();
 
-  // 2. Pequeño delay (350ms) para que HeadlessUI termine de cerrar y desmontar el modal sin trabar la pantalla
-  await new Promise((resolver) => setTimeout(resolver, 350));
+  // 2. Pequeño delay (300ms) para asegurar que el cierre visual se complete antes de cambiar de ruta
+  await new Promise((resolver) => setTimeout(resolver, 300));
 
-  // 3. Redireccionar de forma limpia y directa a la Hoja de Vida
+  // 3. Redireccionar a la Hoja de Vida del activo escaneado
   try {
     await navigateTo(`/activos/${encodeURIComponent(codigo)}`);
   } finally {
+    purgarModalesPegados();
     procesandoEscaneo.value = false;
   }
 };
+
+watch(
+  () => rutaActual.fullPath,
+  () => {
+    modalEscaner.value = false;
+    purgarModalesPegados();
+  }
+);
+
+onMounted(() => {
+  purgarModalesPegados();
+});
 </script>
 
 <template>
@@ -232,32 +271,28 @@ const alEscanearCodigo = async (codigo: string) => {
       </div>
     </main>
 
-    <!-- Modal de Escáner QR (Nativo Vue: se cierra 100% garantizado sin congelarse en Android) -->
-    <Teleport to="body">
-      <div
-        v-if="modalEscaner"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
-        @click.self="cerrarModalEscaner"
-      >
-        <div class="relative w-full max-w-lg bg-slate-900 border border-violet-500/30 rounded-2xl shadow-2xl p-5 text-slate-100 max-h-[90vh] overflow-y-auto">
-          <!-- Cabecera del Escáner -->
-          <div class="flex items-center justify-between pb-3 mb-4 border-b border-violet-500/20">
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
-              <h3 class="font-bold text-white text-base">Escáner de Activos QR en Planta</h3>
-            </div>
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-x-mark"
-              @click="cerrarModalEscaner"
-            />
+    <!-- Único Modal de Escáner QR (Sin Teleport al body para evitar nodos huérfanos) -->
+    <div
+      v-if="modalEscaner"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85"
+      @click.self="cerrarModalEscaner"
+    >
+      <div class="relative w-full max-w-lg bg-slate-900 border border-violet-500/40 rounded-2xl shadow-2xl p-5 text-slate-100 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3 mb-4 border-b border-violet-500/20">
+          <div class="flex items-center gap-2">
+            <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
+            <h3 class="font-bold text-white text-base">Escáner de Activos QR en Planta</h3>
           </div>
-
-          <!-- Componente del Escáner -->
-          <ComunEscanerQr @codigo-detectado="alEscanearCodigo" />
+          <UButton
+            color="gray"
+            variant="ghost"
+            icon="i-heroicons-x-mark"
+            @click="cerrarModalEscaner"
+          />
         </div>
+
+        <ComunEscanerQr @codigo-detectado="alEscanearCodigo" />
       </div>
-    </Teleport>
+    </div>
   </div>
 </template>

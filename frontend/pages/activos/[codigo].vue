@@ -37,6 +37,10 @@ const cargarHojaVida = async () => {
   }
 };
 
+watch(codigoActivo, () => {
+  cargarHojaVida();
+});
+
 onMounted(() => {
   cargarHojaVida();
 });
