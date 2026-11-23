@@ -2,18 +2,9 @@ export const usarApi = () => {
   const configuracion = useRuntimeConfig();
 
   const obtenerUrlBase = (): string => {
-    let url = configuracion.public.urlApiBackend || 'http://localhost:4000/api';
-
-    // Si estamos en el navegador del cliente (móvil, tablet u otra PC en red)
-    if (import.meta.client && typeof window !== 'undefined') {
-      const anfitrionActual = window.location.hostname;
-      // Si entraste por la IP de la red local (ej. 192.168.1.115), apunta al backend en esa misma IP
-      if (anfitrionActual && anfitrionActual !== 'localhost' && anfitrionActual !== '127.0.0.1') {
-        url = url.replace(/localhost|127\.0\.0\.1/, anfitrionActual);
-      }
-    }
-
-    return url;
+    // Al usar '/api', Nuxt redirige internamente por proxy a http://localhost:4000/api
+    // evitando bloqueos de Mixed Content cuando el frontend corre en HTTPS autofirmado.
+    return configuracion.public.urlApiBackend || '/api';
   };
 
   const peticion = async <T = any>(

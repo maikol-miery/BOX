@@ -9,9 +9,19 @@ export default defineNuxtConfig({
     fallback: 'dark',
     classSuffix: ''
   },
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000,
+    https: true
+  },
+  routeRules: {
+    '/api/**': {
+      proxy: 'http://localhost:4000/api/**'
+    }
+  },
   runtimeConfig: {
     public: {
-      urlApiBackend: process.env.NUXT_PUBLIC_URL_API_BACKEND || 'http://localhost:4000/api'
+      urlApiBackend: process.env.NUXT_PUBLIC_URL_API_BACKEND || '/api'
     }
   },
   app: {

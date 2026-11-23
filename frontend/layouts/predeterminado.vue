@@ -9,7 +9,7 @@ const enlacesNavegacion = [
   { nombre: 'Parque Informático', ruta: '/activos', icono: 'i-heroicons-computer-desktop', descripcion: 'Activos, QR y Garantías' },
   { nombre: 'Etiquetas QR', ruta: '/activos/etiquetas', icono: 'i-heroicons-qr-code', descripcion: 'Impresión para planta' },
   { nombre: 'Mantenimiento IR-SI-FO-001', ruta: '/mantenimientos', icono: 'i-heroicons-wrench-screwdriver', descripcion: 'Chequeo, firmas y Excel' },
-  { nombre: 'Insumos de Impresión', ruta: '/insumos', icono: 'i-heroicons-archive-box', descripcion: 'Tóners y reemplazos' },
+  { nombre: 'Insumos de Impresión', ruta: '/insumos', icono: 'i-heroicons-swatch', descripcion: 'Tóners y reemplazos' },
   { nombre: 'Préstamos y Custodia', ruta: '/prestamos', icono: 'i-heroicons-arrows-right-left', descripcion: 'Equipos rotativos' },
   { nombre: 'Banco de Pruebas y RAEE', ruta: '/residuos', icono: 'i-heroicons-cpu-chip', descripcion: 'Desincorporación y reciclaje' }
 ]
@@ -20,6 +20,10 @@ const alEscanearCodigo = async (codigo: string) => {
   if (procesandoEscaneo.value) return
   procesandoEscaneo.value = true
   modalEscaner.value = false
+
+  // Esperar 300ms para que UModal (Nuxt UI v2) termine su animación de cierre antes de cambiar de ruta
+  await new Promise((resolve) => setTimeout(resolve, 300))
+
   try {
     await navigateTo(`/activos/${encodeURIComponent(codigo)}`)
   } finally {
@@ -46,7 +50,7 @@ watch(() => route.fullPath, () => {
         <div>
           <div class="flex items-center gap-2">
             <span class="text-xl font-extrabold tracking-tight text-white">BOX</span>
-            <UBadge color="primary" variant="subtle" size="sm">PWA IT</UBadge>
+            <UBadge color="violet" variant="subtle" size="xs">PWA IT</UBadge>
           </div>
           <p class="text-xs text-violet-300/80 font-medium">Industrias Rodanol, S.A.</p>
         </div>
@@ -56,10 +60,11 @@ watch(() => route.fullPath, () => {
         <UButton
           block
           size="lg"
-          color="primary"
+          color="violet"
+          variant="solid"
           icon="i-heroicons-camera"
           label="Escanear Etiqueta QR"
-          class="shadow-lg shadow-primary/25 font-semibold"
+          class="shadow-lg shadow-violet-600/25 font-semibold"
           @click="modalEscaner = true"
         />
       </div>
@@ -103,7 +108,7 @@ watch(() => route.fullPath, () => {
     >
       <div class="flex items-center gap-3">
         <UButton
-          color="neutral"
+          color="gray"
           variant="ghost"
           icon="i-heroicons-bars-3"
           aria-label="Abrir menú"
@@ -121,7 +126,7 @@ watch(() => route.fullPath, () => {
       </div>
 
       <UButton
-        color="primary"
+        color="violet"
         size="sm"
         icon="i-heroicons-qr-code"
         label="Escanear QR"
@@ -129,54 +134,50 @@ watch(() => route.fullPath, () => {
       />
     </header>
 
-    <!-- Menú deslizante móvil -->
+    <!-- Menú deslizante móvil (Sintaxis Nuxt UI v2: v-model y slot por defecto) -->
     <USlideover
-      v-model:open="menuMovilAbierto"
+      v-model="menuMovilAbierto"
       side="left"
-      title="BOX - Rodanol"
-      description="Menú de navegación"
     >
-      <template #content>
-        <div class="p-5 h-full bg-slate-900 text-slate-100 flex flex-col">
-          <div class="flex items-center justify-between pb-4 border-b border-violet-500/20">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center">
-                <UIcon name="i-heroicons-cube-transparent" class="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p class="font-bold text-white">BOX - Rodanol</p>
-                <p class="text-xs text-violet-300">Departamento de IT</p>
-              </div>
+      <div class="p-5 h-full bg-slate-900 text-slate-100 flex flex-col">
+        <div class="flex items-center justify-between pb-4 border-b border-violet-500/20">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-violet-600 flex items-center justify-center">
+              <UIcon name="i-heroicons-cube-transparent" class="w-6 h-6 text-white" />
             </div>
-            <UButton
-              color="neutral"
-              variant="ghost"
-              icon="i-heroicons-x-mark"
-              aria-label="Cerrar menú"
-              @click="menuMovilAbierto = false"
-            />
+            <div>
+              <p class="font-bold text-white">BOX - Rodanol</p>
+              <p class="text-xs text-violet-300">Departamento de IT</p>
+            </div>
           </div>
-
-          <nav class="flex-1 py-4 space-y-2 overflow-y-auto">
-            <NuxtLink
-              v-for="item in enlacesNavegacion"
-              :key="item.ruta"
-              :to="item.ruta"
-              class="flex items-center gap-3 px-3.5 py-3 rounded-xl border"
-              :class="esActivo(item.ruta)
-                ? 'bg-violet-600/30 text-white border-violet-500/40'
-                : 'text-slate-300 hover:bg-slate-800 border-transparent'"
-              @click="menuMovilAbierto = false"
-            >
-              <UIcon :name="item.icono" class="w-5 h-5 text-violet-400" />
-              <div>
-                <p class="text-sm font-semibold">{{ item.nombre }}</p>
-                <p class="text-xs text-slate-400">{{ item.descripcion }}</p>
-              </div>
-            </NuxtLink>
-          </nav>
+          <UButton
+            color="gray"
+            variant="ghost"
+            icon="i-heroicons-x-mark"
+            aria-label="Cerrar menú"
+            @click="menuMovilAbierto = false"
+          />
         </div>
-      </template>
+
+        <nav class="flex-1 py-4 space-y-2 overflow-y-auto">
+          <NuxtLink
+            v-for="item in enlacesNavegacion"
+            :key="item.ruta"
+            :to="item.ruta"
+            class="flex items-center gap-3 px-3.5 py-3 rounded-xl border"
+            :class="esActivo(item.ruta)
+              ? 'bg-violet-600/30 text-white border-violet-500/40'
+              : 'text-slate-300 hover:bg-slate-800 border-transparent'"
+            @click="menuMovilAbierto = false"
+          >
+            <UIcon :name="item.icono" class="w-5 h-5 text-violet-400" />
+            <div>
+              <p class="text-sm font-semibold">{{ item.nombre }}</p>
+              <p class="text-xs text-slate-400">{{ item.descripcion }}</p>
+            </div>
+          </NuxtLink>
+        </nav>
+      </div>
     </USlideover>
 
     <!-- Contenido principal -->
@@ -186,16 +187,33 @@ watch(() => route.fullPath, () => {
       </div>
     </main>
 
-    <!-- Modal del escáner -->
+    <!-- Modal del escáner (Sintaxis Nuxt UI v2: v-model y UCard en slot por defecto) -->
     <UModal
-      v-model:open="modalEscaner"
-      title="Escáner de Activos QR en Planta"
-      description="Escanea la etiqueta QR del activo o ingresa el código manualmente."
-      :ui="{ content: 'max-w-lg' }"
+      v-model="modalEscaner"
+      :ui="{ width: 'sm:max-w-lg' }"
     >
-      <template #body>
-        <ComunEscanerQr @codigo-detectado="alEscanearCodigo" />
-      </template>
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
+              <h3 class="font-bold text-white text-base">Escáner de Activos QR en Planta</h3>
+            </div>
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark"
+              aria-label="Cerrar escáner"
+              @click="modalEscaner = false"
+            />
+          </div>
+        </template>
+
+        <ComunEscanerQr
+          v-if="modalEscaner"
+          @codigo-detectado="alEscanearCodigo"
+        />
+      </UCard>
     </UModal>
   </div>
 </template>

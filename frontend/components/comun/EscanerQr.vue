@@ -78,7 +78,6 @@ const procesarFotoCapturada = async (evento: Event) => {
   procesandoFoto.value = true
   errorCamara.value = ''
   try {
-    // Detener el video en vivo para evitar conflictos con el contenedor
     await detenerCamara()
     const lector = await crearLector()
     try {
@@ -127,25 +126,25 @@ onBeforeUnmount(detenerCamara)
     <UButton
       block
       size="lg"
-      color="primary"
+      color="violet"
       icon="i-heroicons-camera"
       :loading="procesandoFoto"
       label="Tomar foto del código QR"
-      class="shadow-lg shadow-primary/20 font-bold"
+      class="shadow-lg shadow-violet-500/20 font-bold"
       @click="abrirCapturaFoto"
     />
 
     <UAlert
       v-if="errorCamara"
-      color="warning"
-      variant="subtle"
+      color="amber"
+      variant="soft"
       icon="i-heroicons-exclamation-triangle"
       :description="errorCamara"
     />
 
     <!-- Búsqueda manual / escáner USB -->
     <div class="pt-2 border-t border-slate-800">
-      <UFormField label="O ingresa el código del activo manualmente:">
+      <UFormGroup label="O ingresa el código del activo manualmente:">
         <div class="flex gap-2">
           <UInput
             v-model="codigoManual"
@@ -154,14 +153,14 @@ onBeforeUnmount(detenerCamara)
             @keyup.enter="enviarCodigoManual"
           />
           <UButton
-            color="neutral"
+            color="gray"
             variant="soft"
             icon="i-heroicons-magnifying-glass"
             label="Buscar"
             @click="enviarCodigoManual"
           />
         </div>
-      </UFormField>
+      </UFormGroup>
     </div>
   </div>
 </template>
