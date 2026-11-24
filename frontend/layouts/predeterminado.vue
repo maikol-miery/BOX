@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 const route = useRoute()
 const menuMovilAbierto = ref(false)
 const modalEscaner = ref(false)
@@ -14,9 +14,9 @@ const enlacesNavegacion = [
   { nombre: 'Banco de Pruebas y RAEE', ruta: '/residuos', icono: 'i-heroicons-cpu-chip', descripcion: 'Desincorporación y reciclaje' }
 ]
 
-const esActivo = (ruta: string) => route.path === ruta
+const esActivo = (ruta) => route.path === ruta
 
-const alEscanearCodigo = async (codigo: string) => {
+const alEscanearCodigo = async (codigo) => {
   if (procesandoEscaneo.value) return
   procesandoEscaneo.value = true
   modalEscaner.value = false

@@ -1,22 +1,26 @@
-<script setup lang="ts">
+<script setup>
 /**
  * Lienzo HTML5 táctil 100% firme y estático para capturar la firma digital
  * de conformidad de los usuarios en planta (soporta dedo en móvil y mouse en PC).
  */
-const propiedades = defineProps<{
-  modelValue: string;
-  etiqueta?: string;
-}>();
+const propiedades = defineProps({
+  modelValue: {
+    type: String,
+    default: ''
+  },
+  etiqueta: {
+    type: String,
+    default: ''
+  }
+});
 
-const emitir = defineEmits<{
-  (e: 'update:modelValue', valor: string): void;
-}>();
+const emitir = defineEmits(['update:modelValue']);
 
-const referenciaLienzo = ref<HTMLCanvasElement | null>(null);
+const referenciaLienzo = ref(null);
 const dibujando = ref(false);
 const tieneTrazo = ref(false);
 
-const obtenerCoordenadas = (evento: MouseEvent | TouchEvent) => {
+const obtenerCoordenadas = (evento) => {
   const lienzo = referenciaLienzo.value;
   if (!lienzo) return { x: 0, y: 0 };
   const rectangulo = lienzo.getBoundingClientRect();
@@ -28,14 +32,13 @@ const obtenerCoordenadas = (evento: MouseEvent | TouchEvent) => {
     };
   }
 
-  const eventoRaton = evento as MouseEvent;
   return {
-    x: eventoRaton.clientX - rectangulo.left,
-    y: eventoRaton.clientY - rectangulo.top
+    x: evento.clientX - rectangulo.left,
+    y: evento.clientY - rectangulo.top
   };
 };
 
-const iniciarTrazo = (evento: MouseEvent | TouchEvent) => {
+const iniciarTrazo = (evento) => {
   const lienzo = referenciaLienzo.value;
   if (!lienzo) return;
   const contexto = lienzo.getContext('2d');
@@ -48,7 +51,7 @@ const iniciarTrazo = (evento: MouseEvent | TouchEvent) => {
   contexto.moveTo(x, y);
 };
 
-const trazarLinea = (evento: MouseEvent | TouchEvent) => {
+const trazarLinea = (evento) => {
   if (!dibujando.value) return;
   const lienzo = referenciaLienzo.value;
   if (!lienzo) return;

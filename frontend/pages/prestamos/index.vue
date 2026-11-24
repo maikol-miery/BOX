@@ -1,12 +1,12 @@
-<script setup lang="ts">
+<script setup>
 const { peticion } = usarApi();
 const notificaciones = useToast();
 
-const listaPrestamos = ref<any[]>([]);
-const activosDisponibles = ref<any[]>([]);
+const listaPrestamos = ref([]);
+const activosDisponibles = ref([]);
 const modalNuevoPrestamo = ref(false);
 const modalDevolucion = ref(false);
-const prestamoSeleccionado = ref<any | null>(null);
+const prestamoSeleccionado = ref(null);
 const guardando = ref(false);
 
 const catalogoAccesorios = [
@@ -19,11 +19,11 @@ const catalogoAccesorios = [
 ];
 
 const formularioPrestamo = reactive({
-  activo_id: undefined as number | undefined,
+  activo_id: undefined,
   trabajador_solicitante: '',
   departamento_solicitante: '',
   motivo_prestamo: '',
-  accesorios_incluidos: ['Cargador Original', 'Mouse Óptico'] as string[],
+  accesorios_incluidos: ['Cargador Original', 'Mouse Óptico'],
   fecha_estimada_devolucion: '',
   tecnico_responsable: '',
   observaciones_entrega: '',
@@ -37,14 +37,14 @@ const formularioDevolucion = reactive({
 
 const cargarPrestamos = async () => {
   const [resPrestamos, resActivos] = await Promise.all([
-    peticion<{ exito: boolean; datos: any[] }>('/prestamos'),
-    peticion<{ exito: boolean; datos: any[] }>('/activos')
+    peticion('/prestamos'),
+    peticion('/activos')
   ]);
   listaPrestamos.value = resPrestamos.datos;
   activosDisponibles.value = resActivos.datos.filter((a) => a.estado === 'FUNCIONAL');
 };
 
-const alternarAccesorio = (accesorio: string) => {
+const alternarAccesorio = (accesorio) => {
   const indice = formularioPrestamo.accesorios_incluidos.indexOf(accesorio);
   if (indice >= 0) {
     formularioPrestamo.accesorios_incluidos.splice(indice, 1);
@@ -56,7 +56,7 @@ const alternarAccesorio = (accesorio: string) => {
 const registrarSalidaPrestamo = async () => {
   guardando.value = true;
   try {
-    const res = await peticion<{ exito: boolean; mensaje: string }>('/prestamos', {
+    const res = await peticion('/prestamos', {
       method: 'POST',
       body: formularioPrestamo
     });
@@ -68,7 +68,7 @@ const registrarSalidaPrestamo = async () => {
     modalNuevoPrestamo.value = false;
     formularioPrestamo.firma_recepcion_base64 = '';
     await cargarPrestamos();
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'Error al registrar préstamo',
       description: error?.data?.errores?.[0]?.mensaje || error?.data?.mensaje,
@@ -79,7 +79,7 @@ const registrarSalidaPrestamo = async () => {
   }
 };
 
-const abrirModalDevolucion = (prestamo: any) => {
+const abrirModalDevolucion = (prestamo) => {
   prestamoSeleccionado.value = prestamo;
   modalDevolucion.value = true;
 };
@@ -88,7 +88,7 @@ const confirmarDevolucion = async () => {
   if (!prestamoSeleccionado.value) return;
   guardando.value = true;
   try {
-    const res = await peticion<{ exito: boolean; mensaje: string }>(
+    const res = await peticion(
       `/prestamos/${prestamoSeleccionado.value.id}/devolver`,
       {
         method: 'PUT',
@@ -102,7 +102,7 @@ const confirmarDevolucion = async () => {
     });
     modalDevolucion.value = false;
     await cargarPrestamos();
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'Error',
       description: error?.data?.mensaje,

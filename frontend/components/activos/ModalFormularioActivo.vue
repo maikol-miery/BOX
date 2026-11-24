@@ -1,13 +1,13 @@
-<script setup lang="ts">
-const propiedades = defineProps<{
-  modelValue: boolean;
-  activoEditar?: any | null;
-}>();
+<script setup>
+const propiedades = defineProps({
+  modelValue: Boolean,
+  activoEditar: {
+    type: Object,
+    default: null
+  }
+});
 
-const emitir = defineEmits<{
-  (e: 'update:modelValue', valor: boolean): void;
-  (e: 'guardado'): void;
-}>();
+const emitir = defineEmits(['update:modelValue', 'guardado']);
 
 const { peticion } = usarApi();
 const { calcularEstadoGarantia } = usarGarantia();
@@ -126,7 +126,7 @@ const guardarActivo = async () => {
     const ruta = esEdicion ? `/activos/${propiedades.activoEditar.id}` : '/activos';
     const metodo = esEdicion ? 'PUT' : 'POST';
 
-    const respuesta = await peticion<{ exito: boolean; mensaje: string }>(ruta, {
+    const respuesta = await peticion(ruta, {
       method: metodo,
       body: formulario
     });
@@ -139,7 +139,7 @@ const guardarActivo = async () => {
 
     emitir('guardado');
     emitir('update:modelValue', false);
-  } catch (error: any) {
+  } catch (error) {
     const detalle =
       error?.data?.errores?.[0]?.mensaje ||
       error?.data?.mensaje ||

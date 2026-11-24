@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 const ruta = useRoute();
 const codigoActivo = computed(() => String(ruta.params.codigo || '').toUpperCase());
 
@@ -6,10 +6,10 @@ const { peticion } = usarApi();
 const notificaciones = useToast();
 
 const cargando = ref(true);
-const activo = ref<any | null>(null);
+const activo = ref(null);
 const errorMensaje = ref('');
 
-const coloresEstado: Record<string, string> = {
+const coloresEstado = {
   FUNCIONAL: 'emerald',
   MANTENIMIENTO: 'amber',
   DAÑADO: 'rose',
@@ -20,11 +20,11 @@ const cargarHojaVida = async () => {
   cargando.value = true;
   errorMensaje.value = '';
   try {
-    const respuesta = await peticion<{ exito: boolean; datos: any }>(
+    const respuesta = await peticion(
       `/activos/codigo/${encodeURIComponent(codigoActivo.value)}`
     );
     activo.value = respuesta.datos;
-  } catch (err: any) {
+  } catch (err) {
     errorMensaje.value =
       err?.data?.mensaje || `No se encontró ningún activo con el código ${codigoActivo.value}`;
     notificaciones.add({
@@ -113,7 +113,7 @@ onMounted(() => {
                 <h1 class="text-xl sm:text-2xl font-black text-white">
                   {{ activo.tipo_activo }} — {{ activo.marca }} {{ activo.modelo }}
                 </h1>
-                <UBadge :color="(coloresEstado[activo.estado] as any) || 'slate'" variant="subtle" size="md">
+                <UBadge :color="coloresEstado[activo.estado] || 'slate'" variant="subtle" size="md">
                   {{ activo.estado }}
                 </UBadge>
               </div>

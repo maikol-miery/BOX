@@ -1,15 +1,15 @@
-<script setup lang="ts">
+<script setup>
 const { peticion } = usarApi();
 const notificaciones = useToast();
 
-const listaResiduos = ref<any[]>([]);
-const listaActivos = ref<any[]>([]);
+const listaResiduos = ref([]);
+const listaActivos = ref([]);
 const modalNuevoResiduo = ref(false);
-const actaSeleccionada = ref<any | null>(null);
+const actaSeleccionada = ref(null);
 const guardando = ref(false);
 
 const formularioResiduo = reactive({
-  activo_id: undefined as number | undefined,
+  activo_id: undefined,
   codigo_acta: `ACTA-RAEE-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900 + 100))}`,
   diagnostico_tecnico: '',
   piezas_faltantes: '',
@@ -24,8 +24,8 @@ const formularioResiduo = reactive({
 
 const cargarDatos = async () => {
   const [resRaee, resActivos] = await Promise.all([
-    peticion<{ exito: boolean; datos: any[] }>('/residuos'),
-    peticion<{ exito: boolean; datos: any[] }>('/activos')
+    peticion('/residuos'),
+    peticion('/activos')
   ]);
   listaResiduos.value = resRaee.datos;
   listaActivos.value = resActivos.datos;
@@ -34,7 +34,7 @@ const cargarDatos = async () => {
 const guardarRegistroRaee = async () => {
   guardando.value = true;
   try {
-    const res = await peticion<{ exito: boolean; mensaje: string; datos: any }>('/residuos', {
+    const res = await peticion('/residuos', {
       method: 'POST',
       body: formularioResiduo
     });
@@ -46,7 +46,7 @@ const guardarRegistroRaee = async () => {
     modalNuevoResiduo.value = false;
     await cargarDatos();
     actaSeleccionada.value = res.datos;
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'Error',
       description: error?.data?.errores?.[0]?.mensaje || error?.data?.mensaje,
@@ -57,7 +57,7 @@ const guardarRegistroRaee = async () => {
   }
 };
 
-const imprimirActaAuditoria = (residuo: any) => {
+const imprimirActaAuditoria = (residuo) => {
   actaSeleccionada.value = residuo;
   setTimeout(() => {
     window.print();

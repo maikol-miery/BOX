@@ -1,16 +1,16 @@
-<script setup lang="ts">
+<script setup>
 const { peticion } = usarApi();
 const notificaciones = useToast();
 
 const cargando = ref(false);
-const listaActivos = ref<any[]>([]);
+const listaActivos = ref([]);
 const busqueda = ref('');
 const filtroTipo = ref('');
 const filtroEstado = ref('');
 
 const modalFormulario = ref(false);
 const modalHojaVida = ref(false);
-const activoSeleccionado = ref<any>(null);
+const activoSeleccionado = ref(null);
 
 const tiposActivo = [
   { label: 'Todos los tipos', value: '' },
@@ -48,7 +48,7 @@ const cargarActivos = async () => {
     if (filtroTipo.value) parametros.set('tipo_activo', filtroTipo.value);
     if (filtroEstado.value) parametros.set('estado', filtroEstado.value);
 
-    const respuesta = await peticion<{ exito: boolean; datos: any[] }>(
+    const respuesta = await peticion(
       `/activos?${parametros.toString()}`
     );
     listaActivos.value = respuesta.datos;
@@ -68,14 +68,14 @@ const abrirCreacion = () => {
   modalFormulario.value = true;
 };
 
-const abrirEdicion = (activo: any) => {
+const abrirEdicion = (activo) => {
   activoSeleccionado.value = activo;
   modalFormulario.value = true;
 };
 
-const abrirHojaVida = async (codigo: string) => {
+const abrirHojaVida = async (codigo) => {
   try {
-    const respuesta = await peticion<{ exito: boolean; datos: any }>(
+    const respuesta = await peticion(
       `/activos/codigo/${encodeURIComponent(codigo)}`
     );
     activoSeleccionado.value = respuesta.datos;

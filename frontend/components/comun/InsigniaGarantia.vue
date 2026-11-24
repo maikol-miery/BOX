@@ -1,8 +1,14 @@
-<script setup lang="ts">
-const propiedades = defineProps<{
-  fechaCompra?: string | null;
-  mesesGarantia?: number | null;
-}>();
+<script setup>
+const propiedades = defineProps({
+  fechaCompra: {
+    type: String,
+    default: null
+  },
+  mesesGarantia: {
+    type: Number,
+    default: 0
+  }
+});
 
 const { calcularEstadoGarantia } = usarGarantia();
 

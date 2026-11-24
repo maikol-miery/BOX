@@ -1,16 +1,5 @@
-export interface ResultadoGarantia {
-  estado_garantia: 'VIGENTE' | 'POR VENCER' | 'VENCIDA' | 'SIN GARANTIA';
-  fecha_vencimiento: string | null;
-  dias_restantes: number | null;
-  color_insignia: 'emerald' | 'amber' | 'slate';
-  etiqueta_texto: string;
-}
-
 export const usarGarantia = () => {
-  const calcularEstadoGarantia = (
-    fechaCompra?: string | null,
-    mesesGarantia?: number | null
-  ): ResultadoGarantia => {
+  const calcularEstadoGarantia = (fechaCompra, mesesGarantia) => {
     const meses = Number(mesesGarantia || 0);
     if (!fechaCompra || meses <= 0) {
       return {

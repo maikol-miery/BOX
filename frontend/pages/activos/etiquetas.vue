@@ -1,13 +1,13 @@
-<script setup lang="ts">
+<script setup>
 import QRCode from 'qrcode';
 
 const { peticion } = usarApi();
-const listaActivos = ref<any[]>([]);
-const imagenesQr = ref<Record<string, string>>({});
+const listaActivos = ref([]);
+const imagenesQr = ref({});
 const filtroDepartamento = ref('');
 
 const cargarActivosYGenerarQr = async () => {
-  const respuesta = await peticion<{ exito: boolean; datos: any[] }>('/activos');
+  const respuesta = await peticion('/activos');
   listaActivos.value = respuesta.datos;
 
   for (const activo of listaActivos.value) {

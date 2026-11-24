@@ -1,18 +1,15 @@
 export const usarApi = () => {
   const configuracion = useRuntimeConfig();
 
-  const obtenerUrlBase = (): string => {
+  const obtenerUrlBase = () => {
     // Al usar '/api', Nuxt redirige internamente por proxy a http://localhost:4000/api
     // evitando bloqueos de Mixed Content cuando el frontend corre en HTTPS autofirmado.
     return configuracion.public.urlApiBackend || '/api';
   };
 
-  const peticion = async <T = any>(
-    ruta: string,
-    opciones: Record<string, any> = {}
-  ): Promise<T> => {
+  const peticion = async (ruta, opciones = {}) => {
     const urlBase = obtenerUrlBase();
-    return await $fetch<T>(`${urlBase}${ruta}`, {
+    return await $fetch(`${urlBase}${ruta}`, {
       ...opciones,
       headers: {
         ...(opciones.headers || {})
@@ -20,9 +17,9 @@ export const usarApi = () => {
     });
   };
 
-  const descargarArchivoExcel = async (ruta: string, nombreArchivoDescarga: string) => {
+  const descargarArchivoExcel = async (ruta, nombreArchivoDescarga) => {
     const urlBase = obtenerUrlBase();
-    const respuestaBlob = await $fetch<Blob>(`${urlBase}${ruta}`, {
+    const respuestaBlob = await $fetch(`${urlBase}${ruta}`, {
       method: 'GET',
       responseType: 'blob'
     });

@@ -1,9 +1,12 @@
-<script setup lang="ts">
-const propiedades = defineProps<{
-  activo: any;
-}>();
+<script setup>
+const propiedades = defineProps({
+  activo: {
+    type: Object,
+    default: null
+  }
+});
 
-const coloresEstado: Record<string, string> = {
+const coloresEstado = {
   FUNCIONAL: 'emerald',
   MANTENIMIENTO: 'amber',
   DAÑADO: 'rose',
@@ -17,7 +20,7 @@ const coloresEstado: Record<string, string> = {
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
       <div class="p-3.5 rounded-xl bg-slate-950/70 border border-violet-500/20">
         <p class="text-xs text-slate-400">Estado Operativo</p>
-        <UBadge :color="(coloresEstado[activo.estado] as any) || 'slate'" variant="subtle" class="mt-1">
+        <UBadge :color="coloresEstado[activo.estado] || 'slate'" variant="subtle" class="mt-1">
           {{ activo.estado }}
         </UBadge>
       </div>

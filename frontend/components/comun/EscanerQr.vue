@@ -1,18 +1,14 @@
-<script setup lang="ts">
-import type { Html5Qrcode } from 'html5-qrcode'
-
-const emitir = defineEmits<{
-  (e: 'codigo-detectado', codigo: string): void
-}>()
+<script setup>
+const emitir = defineEmits(['codigo-detectado'])
 
 const idContenedorLector = 'visor-camara-qr-box'
 const codigoManual = ref('')
 const errorCamara = ref('')
 const camaraActiva = ref(false)
 const procesandoFoto = ref(false)
-const inputFoto = ref<HTMLInputElement | null>(null)
+const inputFoto = ref(null)
 
-let instanciaLector: Html5Qrcode | null = null
+let instanciaLector = null
 let yaEmitido = false
 
 const crearLector = async () => {
@@ -31,7 +27,7 @@ const detenerCamara = async () => {
   camaraActiva.value = false
 }
 
-const emitirCodigo = async (texto: string) => {
+const emitirCodigo = async (texto) => {
   const codigo = texto.trim().toUpperCase()
   if (!codigo || yaEmitido) return
   yaEmitido = true
@@ -70,9 +66,9 @@ const abrirCapturaFoto = () => {
   inputFoto.value?.click()
 }
 
-const procesarFotoCapturada = async (evento: Event) => {
-  const objetivo = evento.target as HTMLInputElement
-  const archivo = objetivo.files?.[0]
+const procesarFotoCapturada = async (evento) => {
+  const objetivo = evento.target;
+  const archivo = objetivo.files?.[0];
   if (!archivo) return
 
   procesandoFoto.value = true

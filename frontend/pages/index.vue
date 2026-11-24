@@ -1,8 +1,8 @@
-<script setup lang="ts">
+<script setup>
 const { peticion } = usarApi();
 const cargando = ref(true);
 
-const resumen = ref<any>({
+const resumen = ref({
   metricas: {
     total_activos: 0,
     activos_funcionales: 0,
@@ -22,7 +22,7 @@ const resumen = ref<any>({
 const cargarTablero = async () => {
   cargando.value = true;
   try {
-    const respuesta = await peticion<{ exito: boolean; datos: any }>('/tablero/resumen');
+    const respuesta = await peticion('/tablero/resumen');
     resumen.value = respuesta.datos;
   } catch {
     // Mantiene estado vacío si el backend aún no está encendido

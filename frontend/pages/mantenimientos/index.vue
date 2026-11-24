@@ -1,10 +1,10 @@
-<script setup lang="ts">
+<script setup>
 const { peticion, descargarArchivoExcel } = usarApi();
 const notificaciones = useToast();
 
-const listaJornadas = ref<any[]>([]);
-const listaActivos = ref<any[]>([]);
-const jornadaActiva = ref<any | null>(null);
+const listaJornadas = ref([]);
+const listaActivos = ref([]);
+const jornadaActiva = ref(null);
 
 const modalNuevaJornada = ref(false);
 const modalRegistrarChequeo = ref(false);
@@ -20,7 +20,7 @@ const formularioJornada = reactive({
 });
 
 const formularioChequeo = reactive({
-  activo_id: undefined as number | undefined,
+  activo_id: undefined,
   usuario_atendido: '',
   departamento: '',
   ejecutado: 'SI',
@@ -31,8 +31,8 @@ const formularioChequeo = reactive({
 
 const cargarDatos = async () => {
   const [resJornadas, resActivos] = await Promise.all([
-    peticion<{ exito: boolean; datos: any[] }>('/mantenimientos'),
-    peticion<{ exito: boolean; datos: any[] }>('/activos')
+    peticion('/mantenimientos'),
+    peticion('/activos')
   ]);
   listaJornadas.value = resJornadas.datos;
   listaActivos.value = resActivos.datos;
@@ -59,7 +59,7 @@ watch(
 const crearJornada = async () => {
   guardando.value = true;
   try {
-    const respuesta = await peticion<{ exito: boolean; mensaje: string; datos: any }>(
+    const respuesta = await peticion(
       '/mantenimientos',
       {
         method: 'POST',
@@ -74,7 +74,7 @@ const crearJornada = async () => {
     modalNuevaJornada.value = false;
     await cargarDatos();
     jornadaActiva.value = respuesta.datos;
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'Error',
       description: error?.data?.errores?.[0]?.mensaje || 'No se pudo crear la jornada.',
@@ -89,7 +89,7 @@ const guardarChequeoConFirma = async () => {
   if (!jornadaActiva.value) return;
   guardando.value = true;
   try {
-    const respuesta = await peticion<{ exito: boolean; mensaje: string }>(
+    const respuesta = await peticion(
       `/mantenimientos/${jornadaActiva.value.id}/registros`,
       {
         method: 'POST',
@@ -105,7 +105,7 @@ const guardarChequeoConFirma = async () => {
     formularioChequeo.firma_conformidad_base64 = '';
     formularioChequeo.observaciones = '';
     await cargarDatos();
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'Validación Requerida',
       description:
@@ -119,7 +119,7 @@ const guardarChequeoConFirma = async () => {
   }
 };
 
-const exportarExcelJornada = async (jornada: any) => {
+const exportarExcelJornada = async (jornada) => {
   try {
     await descargarArchivoExcel(
       `/mantenimientos/${jornada.id}/exportar-excel`,

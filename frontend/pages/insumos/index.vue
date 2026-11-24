@@ -1,10 +1,10 @@
-<script setup lang="ts">
+<script setup>
 const { peticion } = usarApi();
 const notificaciones = useToast();
 
-const listaInsumos = ref<any[]>([]);
-const historialEntregas = ref<any[]>([]);
-const impresorasDisponibles = ref<any[]>([]);
+const listaInsumos = ref([]);
+const historialEntregas = ref([]);
+const impresorasDisponibles = ref([]);
 
 const modalNuevoInsumo = ref(false);
 const modalSalidaToner = ref(false);
@@ -21,21 +21,21 @@ const formularioInsumo = reactive({
 });
 
 const formularioEntrega = reactive({
-  insumo_id: undefined as number | undefined,
-  impresora_id: undefined as number | undefined,
+  insumo_id: undefined,
+  impresora_id: undefined,
   departamento_destino: '',
   usuario_receptor: '',
   tecnico_entregador: '',
   cantidad_entregada: 1,
-  contador_paginas: undefined as number | undefined,
+  contador_paginas: undefined,
   observaciones: ''
 });
 
 const cargarInsumosYEntregas = async () => {
   const [resInsumos, resEntregas, resActivos] = await Promise.all([
-    peticion<{ exito: boolean; datos: any[] }>('/insumos'),
-    peticion<{ exito: boolean; datos: any[] }>('/insumos/entregas'),
-    peticion<{ exito: boolean; datos: any[] }>('/activos?tipo_activo=IMPRESORA')
+    peticion('/insumos'),
+    peticion('/insumos/entregas'),
+    peticion('/activos?tipo_activo=IMPRESORA')
   ]);
   listaInsumos.value = resInsumos.datos;
   historialEntregas.value = resEntregas.datos;
@@ -56,7 +56,7 @@ watch(
 const guardarInsumo = async () => {
   guardando.value = true;
   try {
-    const res = await peticion<{ exito: boolean; mensaje: string }>('/insumos', {
+    const res = await peticion('/insumos', {
       method: 'POST',
       body: formularioInsumo
     });
@@ -67,7 +67,7 @@ const guardarInsumo = async () => {
     });
     modalNuevoInsumo.value = false;
     await cargarInsumosYEntregas();
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'Error',
       description: error?.data?.errores?.[0]?.mensaje || error?.data?.mensaje,
@@ -81,7 +81,7 @@ const guardarInsumo = async () => {
 const registrarReemplazoToner = async () => {
   guardando.value = true;
   try {
-    const res = await peticion<{ exito: boolean; mensaje: string }>('/insumos/entregas', {
+    const res = await peticion('/insumos/entregas', {
       method: 'POST',
       body: formularioEntrega
     });
@@ -92,7 +92,7 @@ const registrarReemplazoToner = async () => {
     });
     modalSalidaToner.value = false;
     await cargarInsumosYEntregas();
-  } catch (error: any) {
+  } catch (error) {
     notificaciones.add({
       title: 'No se pudo completar la entrega',
       description: error?.data?.errores?.[0]?.mensaje || error?.data?.mensaje,
@@ -103,7 +103,7 @@ const registrarReemplazoToner = async () => {
   }
 };
 
-const estiloColorToner: Record<string, string> = {
+const estiloColorToner = {
   BLACK: 'bg-slate-800 text-white border-slate-600',
   CYAN: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40',
   MAGENTA: 'bg-pink-500/20 text-pink-300 border-pink-500/40',
