@@ -1,7 +1,10 @@
 <script setup>
 const emitir = defineEmits(['codigo-detectado'])
 
-const idContenedorLector = 'visor-camara-qr-box'
+const sufijoUnico = Math.random().toString(36).slice(2, 8)
+const idContenedorLector = `visor-camara-qr-${sufijoUnico}`
+const idContenedorFoto = `visor-foto-qr-${sufijoUnico}`
+
 const codigoManual = ref('')
 const errorCamara = ref('')
 const camaraActiva = ref(false)
@@ -11,27 +14,27 @@ const inputFoto = ref(null)
 let instanciaLector = null
 let yaEmitido = false
 
-const crearLector = async () => {
-  const { Html5Qrcode } = await import('html5-qrcode')
-  return new Html5Qrcode(idContenedorLector)
-}
-
 const detenerCamara = async () => {
   if (!instanciaLector) return
   const lector = instanciaLector
   instanciaLector = null
+  camaraActiva.value = false
   try {
-    if (lector.isScanning) await lector.stop()
+    if (lector.isScanning) {
+      await Promise.race([
+        lector.stop(),
+        new Promise((r) => setTimeout(r, 250))
+      ])
+    }
     lector.clear()
   } catch {}
-  camaraActiva.value = false
 }
 
-const emitirCodigo = async (texto) => {
-  const codigo = texto.trim().toUpperCase()
+const emitirCodigo = (texto) => {
+  const codigo = String(texto || '').trim().toUpperCase()
   if (!codigo || yaEmitido) return
   yaEmitido = true
-  await detenerCamara()
+  detenerCamara()
   emitir('codigo-detectado', codigo)
 }
 
@@ -47,17 +50,21 @@ const iniciarCamara = async () => {
 
   try {
     await detenerCamara()
-    instanciaLector = await crearLector()
+    const { Html5Qrcode } = await import('html5-qrcode')
+    if (!document.getElementById(idContenedorLector)) return
+    instanciaLector = new Html5Qrcode(idContenedorLector)
     await instanciaLector.start(
       { facingMode: 'environment' },
       { fps: 10, qrbox: { width: 230, height: 230 } },
-      (textoDecodificado) => { emitirCodigo(textoDecodificado) },
+      (textoDecodificado) => {
+        emitirCodigo(textoDecodificado)
+      },
       () => {}
     )
     camaraActiva.value = true
   } catch {
     errorCamara.value =
-      'No se pudo iniciar el video en vivo (requiere HTTPS en red local). Usa "Tomar foto del código QR" para abrir tu cámara directamente.'
+      'No se pudo iniciar la cámara en vivo en este dispositivo. Usa "Tomar foto del código QR" o busca el código manualmente abajo.'
     camaraActiva.value = false
   }
 }
@@ -67,39 +74,45 @@ const abrirCapturaFoto = () => {
 }
 
 const procesarFotoCapturada = async (evento) => {
-  const objetivo = evento.target;
-  const archivo = objetivo.files?.[0];
+  const objetivo = evento.target
+  const archivo = objetivo?.files?.[0]
   if (!archivo) return
 
   procesandoFoto.value = true
   errorCamara.value = ''
   try {
-    await detenerCamara()
-    const lector = await crearLector()
+    const { Html5Qrcode } = await import('html5-qrcode')
+    const lectorFoto = new Html5Qrcode(idContenedorFoto)
+    const texto = await lectorFoto.scanFile(archivo, false)
     try {
-      const texto = await lector.scanFile(archivo, false)
-      await emitirCodigo(texto)
-    } finally {
-      try { lector.clear() } catch {}
-    }
+      lectorFoto.clear()
+    } catch {}
+    emitirCodigo(texto)
   } catch {
     errorCamara.value =
-      'No se reconoció un código QR en la fotografía. Intenta enfocar más de cerca la etiqueta.'
+      'No se reconoció un código QR en la imagen seleccionada. Intenta con una foto más clara o ingresa el código manualmente.'
   } finally {
     procesandoFoto.value = false
-    objetivo.value = ''
+    if (objetivo) objetivo.value = ''
   }
 }
 
-const enviarCodigoManual = () => emitirCodigo(codigoManual.value)
+const enviarCodigoManual = () => {
+  emitirCodigo(codigoManual.value)
+}
 
-onMounted(iniciarCamara)
-onBeforeUnmount(detenerCamara)
+onMounted(() => {
+  iniciarCamara()
+})
+
+onBeforeUnmount(() => {
+  detenerCamara()
+})
 </script>
 
 <template>
   <div class="space-y-4">
-    <!-- Input oculto para cámara nativa (fallback sin HTTPS) -->
+    <!-- Input oculto para cámara nativa / selección de foto -->
     <input
       ref="inputFoto"
       type="file"
@@ -109,12 +122,17 @@ onBeforeUnmount(detenerCamara)
       @change="procesarFotoCapturada"
     >
 
-    <!-- Visor de la cámara -->
-    <div
-      :id="idContenedorLector"
-      class="w-full min-h-[220px] rounded-xl overflow-hidden bg-slate-950 border border-violet-500/30 flex items-center justify-center relative"
-    >
-      <div v-if="!camaraActiva && !errorCamara" class="text-xs text-slate-400 p-4 text-center">
+    <!-- Contenedor oculto exclusivo para scanFile (sin hijos de Vue) -->
+    <div :id="idContenedorFoto" class="hidden" />
+
+    <!-- Visor de la cámara: el div de Html5Qrcode está vacío para que nunca borre nodos de Vue -->
+    <div class="w-full min-h-[220px] rounded-xl overflow-hidden bg-slate-950 border border-violet-500/30 flex items-center justify-center relative">
+      <div :id="idContenedorLector" class="w-full" />
+
+      <div
+        v-if="!camaraActiva && !errorCamara"
+        class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 p-4 text-center pointer-events-none"
+      >
         Iniciando sensor de cámara...
       </div>
     </div>
@@ -139,17 +157,17 @@ onBeforeUnmount(detenerCamara)
     />
 
     <!-- Búsqueda manual / escáner USB -->
-    <div class="pt-2 border-t border-slate-800">
+    <form class="pt-2 border-t border-slate-800" @submit.prevent="enviarCodigoManual">
       <UFormGroup label="O ingresa el código del activo manualmente:">
         <div class="flex gap-2">
           <UInput
             v-model="codigoManual"
             placeholder="Ej: V-01, M-05, P-01"
             class="flex-1 uppercase"
-            @keyup.enter="enviarCodigoManual"
           />
           <UButton
-            color="gray"
+            type="submit"
+            color="violet"
             variant="soft"
             icon="i-heroicons-magnifying-glass"
             label="Buscar"
@@ -157,6 +175,6 @@ onBeforeUnmount(detenerCamara)
           />
         </div>
       </UFormGroup>
-    </div>
+    </form>
   </div>
 </template>

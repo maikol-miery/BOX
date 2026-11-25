@@ -21,8 +21,8 @@ const alEscanearCodigo = async (codigo) => {
   procesandoEscaneo.value = true
   modalEscaner.value = false
 
-  // Esperar 300ms para que UModal (Nuxt UI v2) termine su animación de cierre antes de cambiar de ruta
-  await new Promise((resolve) => setTimeout(resolve, 300))
+  await nextTick()
+  await new Promise((resolve) => setTimeout(resolve, 150))
 
   try {
     await navigateTo(`/activos/${encodeURIComponent(codigo)}`)
@@ -187,33 +187,35 @@ watch(() => route.fullPath, () => {
       </div>
     </main>
 
-    <!-- Modal del escáner (Sintaxis Nuxt UI v2: v-model y UCard en slot por defecto) -->
-    <UModal
-      v-model="modalEscaner"
-      :ui="{ width: 'sm:max-w-lg' }"
+    <!-- Modal del escáner (Vue puro con v-if: se destruye del DOM al instante, sin bloqueos de HeadlessUI) -->
+    <div
+      v-if="modalEscaner"
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm"
+      @click.self="modalEscaner = false"
     >
-      <UCard>
-        <template #header>
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-              <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
-              <h3 class="font-bold text-white text-base">Escáner de Activos QR en Planta</h3>
+      <div class="w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        <UCard>
+          <template #header>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <UIcon name="i-heroicons-camera" class="w-5 h-5 text-violet-400" />
+                <h3 class="font-bold text-white text-base">Escáner de Activos QR en Planta</h3>
+              </div>
+              <UButton
+                color="gray"
+                variant="ghost"
+                icon="i-heroicons-x-mark"
+                aria-label="Cerrar escáner"
+                @click="modalEscaner = false"
+              />
             </div>
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-x-mark"
-              aria-label="Cerrar escáner"
-              @click="modalEscaner = false"
-            />
-          </div>
-        </template>
+          </template>
 
-        <ComunEscanerQr
-          v-if="modalEscaner"
-          @codigo-detectado="alEscanearCodigo"
-        />
-      </UCard>
-    </UModal>
+          <ComunEscanerQr
+            @codigo-detectado="alEscanearCodigo"
+          />
+        </UCard>
+      </div>
+    </div>
   </div>
 </template>
