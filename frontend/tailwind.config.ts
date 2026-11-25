@@ -1,6 +1,6 @@
-import type { Config } from 'tailwindcss';
-
-export default <Partial<Config>>{
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: 'class',
   content: [
     './components/**/*.{vue,js,ts}',
     './layouts/**/*.vue',
@@ -10,29 +10,20 @@ export default <Partial<Config>>{
   ],
   theme: {
     extend: {
-      keyframes: {
-        flotarLento: {
-          '0%, 100%': {
-            transform: 'translateY(0px)',
-            boxShadow: '0 10px 25px -5px rgba(139, 92, 246, 0.08)'
-          },
-          '50%': {
-            transform: 'translateY(-8px)',
-            boxShadow: '0 20px 35px -5px rgba(139, 92, 246, 0.22)'
-          }
-        },
-        flotarMedio: {
-          '0%, 100%': {
-            transform: 'translateY(0px)'
-          },
-          '50%': {
-            transform: 'translateY(-6px)'
-          }
+      colors: {
+        cobalto: {
+          50: '#EEF0FF',
+          100: '#E0E3FF',
+          200: '#C7CCFE',
+          300: '#A5ACFC',
+          400: '#7C82F9',
+          500: '#4345F6',
+          600: '#3537E0',
+          700: '#2A2BC4',
+          800: '#24259E',
+          900: '#21237D',
+          950: '#14144D'
         }
-      },
-      animation: {
-        'flotar-lento': 'flotarLento 6s ease-in-out infinite',
-        'flotar-medio': 'flotarMedio 4s ease-in-out infinite'
       }
     }
   }

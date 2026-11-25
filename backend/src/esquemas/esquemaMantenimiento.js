@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const esquemaCrearJornadaMantenimiento = z.object({
   cuerpo: z.object({
-    codigo_formulario: z.string().trim().default('IR-SI-FO-001'),
+    codigo_formulario: z.string().trim().default('MANT-PREV'),
     titulo_actividad: z
       .string({ required_error: 'El título de la actividad preventiva es obligatorio.' })
       .trim()

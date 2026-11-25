@@ -126,12 +126,12 @@ onBeforeUnmount(() => {
     <div :id="idContenedorFoto" class="hidden" />
 
     <!-- Visor de la cámara: el div de Html5Qrcode está vacío para que nunca borre nodos de Vue -->
-    <div class="w-full min-h-[220px] rounded-xl overflow-hidden bg-slate-950 border border-violet-500/30 flex items-center justify-center relative">
+    <div class="w-full min-h-[220px] rounded-xl overflow-hidden bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-center relative">
       <div :id="idContenedorLector" class="w-full" />
 
       <div
         v-if="!camaraActiva && !errorCamara"
-        class="absolute inset-0 flex items-center justify-center text-xs text-slate-400 p-4 text-center pointer-events-none"
+        class="absolute inset-0 flex items-center justify-center text-xs text-zinc-400 p-4 text-center pointer-events-none"
       >
         Iniciando sensor de cámara...
       </div>
@@ -140,11 +140,11 @@ onBeforeUnmount(() => {
     <UButton
       block
       size="lg"
-      color="violet"
+      color="primary"
       icon="i-heroicons-camera"
       :loading="procesandoFoto"
       label="Tomar foto del código QR"
-      class="shadow-lg shadow-violet-500/20 font-bold"
+      class="shadow-md shadow-cobalto-500/20 font-bold"
       @click="abrirCapturaFoto"
     />
 
@@ -157,7 +157,7 @@ onBeforeUnmount(() => {
     />
 
     <!-- Búsqueda manual / escáner USB -->
-    <form class="pt-2 border-t border-slate-800" @submit.prevent="enviarCodigoManual">
+    <form class="pt-2 border-t border-zinc-200 dark:border-zinc-800" @submit.prevent="enviarCodigoManual">
       <UFormGroup label="O ingresa el código del activo manualmente:">
         <div class="flex gap-2">
           <UInput
@@ -167,7 +167,7 @@ onBeforeUnmount(() => {
           />
           <UButton
             type="submit"
-            color="violet"
+            color="primary"
             variant="soft"
             icon="i-heroicons-magnifying-glass"
             label="Buscar"

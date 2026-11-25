@@ -103,10 +103,10 @@ onMounted(() => {
     <!-- Encabezado -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-extrabold text-white tracking-tight">
+        <h1 class="text-2xl font-extrabold text-zinc-950 dark:text-white tracking-tight">
           Parque Informático y Hoja de Vida
         </h1>
-        <p class="text-sm text-slate-400">
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">
           Gestión integral de activos, especificaciones técnicas, etiquetas QR y semáforo de garantías
         </p>
       </div>
@@ -120,7 +120,7 @@ onMounted(() => {
           label="Imprimir Etiquetas QR"
         />
         <UButton
-          color="violet"
+          color="primary"
           icon="i-heroicons-plus"
           label="Nuevo Activo"
           @click="abrirCreacion"
@@ -164,10 +164,10 @@ onMounted(() => {
       >
         <template #codigo-data="{ row }">
           <div class="flex items-center gap-2">
-            <UBadge color="violet" variant="solid" size="md" class="font-mono font-bold">
+            <UBadge color="primary" variant="solid" size="md" class="font-mono font-bold">
               {{ row.codigo }}
             </UBadge>
-            <UBadge v-if="row.es_rotativo" color="purple" variant="subtle" size="xs">
+            <UBadge v-if="row.es_rotativo" color="primary" variant="subtle" size="xs">
               Rotativo
             </UBadge>
           </div>
@@ -175,10 +175,10 @@ onMounted(() => {
 
         <template #equipo-data="{ row }">
           <div>
-            <p class="font-bold text-white text-sm">
+            <p class="font-bold text-zinc-950 dark:text-white text-sm">
               {{ row.tipo_activo }} — {{ row.marca }} {{ row.modelo }}
             </p>
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
               <span v-if="row.caracteristicas?.procesador">{{ row.caracteristicas.procesador }} • </span>
               <span v-if="row.caracteristicas?.memoria_ram">{{ row.caracteristicas.memoria_ram }} • </span>
               <span v-if="row.caracteristicas?.almacenamiento">{{ row.caracteristicas.almacenamiento }}</span>
@@ -189,8 +189,8 @@ onMounted(() => {
 
         <template #custodio-data="{ row }">
           <div>
-            <p class="text-sm font-medium text-slate-200">{{ row.usuario_custodio }}</p>
-            <p class="text-xs text-violet-300">{{ row.departamento }}</p>
+            <p class="text-sm font-medium text-zinc-800 dark:text-zinc-200">{{ row.usuario_custodio }}</p>
+            <p class="text-xs text-cobalto-600 dark:text-cobalto-400">{{ row.departamento }}</p>
           </div>
         </template>
 
@@ -223,7 +223,7 @@ onMounted(() => {
             <UButton
               :to="'/activos/' + encodeURIComponent(row.codigo)"
               size="xs"
-              color="violet"
+              color="primary"
               variant="soft"
               icon="i-heroicons-identification"
               label="Hoja de Vida"

@@ -3,6 +3,7 @@ import {
   obtenerJornadasMantenimiento,
   obtenerDetalleJornada,
   crearJornadaMantenimiento,
+  eliminarJornadaMantenimiento,
   registrarEjecucionConFirma,
   exportarExcelFormatoInstitucional
 } from '../controladores/controladorMantenimientos.js';
@@ -21,6 +22,7 @@ enrutadorMantenimientos.post(
   validarEsquema(esquemaCrearJornadaMantenimiento),
   crearJornadaMantenimiento
 );
+enrutadorMantenimientos.delete('/:id', eliminarJornadaMantenimiento);
 enrutadorMantenimientos.post(
   '/:jornadaId/registros',
   validarEsquema(esquemaRegistrarEjecucionMantenimiento),

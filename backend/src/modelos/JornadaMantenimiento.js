@@ -10,7 +10,7 @@ export const JornadaMantenimiento = conexionBaseDatos.define('jornadas_mantenimi
   codigo_formulario: {
     type: DataTypes.STRING(30),
     allowNull: false,
-    defaultValue: 'IR-SI-FO-001'
+    defaultValue: 'MANT-PREV'
   },
   titulo_actividad: {
     type: DataTypes.STRING(250),

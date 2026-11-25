@@ -4,7 +4,8 @@ import {
   obtenerHistorialEntregasInsumos,
   crearInsumo,
   actualizarInsumo,
-  registrarSalidaInsumo
+  registrarSalidaInsumo,
+  eliminarInsumo
 } from '../controladores/controladorInsumos.js';
 import { validarEsquema } from '../middlewares/validarEsquema.js';
 import {
@@ -19,6 +20,7 @@ enrutadorInsumos.get('/', obtenerInsumos);
 enrutadorInsumos.get('/entregas', obtenerHistorialEntregasInsumos);
 enrutadorInsumos.post('/', validarEsquema(esquemaCrearInsumo), crearInsumo);
 enrutadorInsumos.put('/:id', validarEsquema(esquemaActualizarInsumo), actualizarInsumo);
+enrutadorInsumos.delete('/:id', eliminarInsumo);
 enrutadorInsumos.post(
   '/entregas',
   validarEsquema(esquemaRegistrarEntregaInsumo),

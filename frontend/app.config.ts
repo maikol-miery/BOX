@@ -1,27 +1,30 @@
 export default defineAppConfig({
   ui: {
-    primary: 'violet',
-    gray: 'slate',
+    primary: 'cobalto',
+    gray: 'zinc',
     card: {
-      background: 'bg-slate-900/60 backdrop-blur-md',
-      ring: 'ring-1 ring-violet-500/20',
-      shadow: 'shadow-xl shadow-violet-500/5',
-      rounded: 'rounded-2xl'
+      background: 'bg-white dark:bg-zinc-900/90',
+      ring: 'ring-1 ring-zinc-200/90 dark:ring-zinc-800',
+      shadow: 'shadow-sm shadow-zinc-950/5 dark:shadow-none',
+      rounded: 'rounded-2xl',
+      divide: 'divide-y divide-zinc-100 dark:divide-zinc-800'
     },
     modal: {
-      background: 'bg-slate-900 border border-violet-500/30',
+      background: 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800',
       overlay: {
-        background: 'bg-slate-950/80 backdrop-blur-sm'
+        background: 'bg-zinc-950/50 dark:bg-black/80 backdrop-blur-sm'
       }
     },
     table: {
       wrapper: 'relative overflow-x-auto',
+      divide: 'divide-y divide-zinc-200 dark:divide-zinc-800',
+      tbody: 'divide-y divide-zinc-100 dark:divide-zinc-800/80',
       th: {
-        color: 'text-violet-300',
+        color: 'text-zinc-500 dark:text-zinc-400',
         font: 'font-semibold uppercase tracking-wider text-xs'
       },
       td: {
-        color: 'text-slate-200'
+        color: 'text-zinc-700 dark:text-zinc-200'
       }
     },
     notifications: {

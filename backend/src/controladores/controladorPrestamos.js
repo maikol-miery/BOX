@@ -1,4 +1,4 @@
-import { Prestamo, Activo } from '../modelos/index.js';
+import { conexionBaseDatos, Prestamo, Activo } from '../modelos/index.js';
 
 export const obtenerPrestamos = async (req, res, next) => {
   try {
@@ -34,46 +34,71 @@ export const obtenerPrestamos = async (req, res, next) => {
 };
 
 export const crearPrestamo = async (req, res, next) => {
+  const transaccion = await conexionBaseDatos.transaction();
   try {
-    const { activo_id } = req.body;
+    const { activo_id, activos_ids, ...datosComunes } = req.body;
+    const listaIds = Array.isArray(activos_ids) && activos_ids.length > 0
+      ? [...new Set(activos_ids.map(Number))]
+      : [Number(activo_id)];
 
-    const activo = await Activo.findByPk(activo_id);
-    if (!activo) {
-      return res.status(404).json({
-        exito: false,
-        mensaje: 'El activo seleccionado no existe en el inventario.'
-      });
-    }
+    const codigosRegistrados = [];
+    const prestamosCreados = [];
+    const fechaSalidaComun = new Date();
 
-    const prestamoAbierto = await Prestamo.findOne({
-      where: {
-        activo_id,
-        estado_prestamo: ['ACTIVO', 'VENCIDO']
+    for (const idActual of listaIds) {
+      const activo = await Activo.findByPk(idActual, { transaction: transaccion });
+      if (!activo) {
+        await transaccion.rollback();
+        return res.status(404).json({
+          exito: false,
+          mensaje: `Uno de los activos seleccionados (ID ${idActual}) no existe en el inventario.`
+        });
       }
-    });
 
-    if (prestamoAbierto) {
-      return res.status(400).json({
-        exito: false,
-        mensaje: `El equipo '${activo.codigo}' ya se encuentra en préstamo activo a nombre de ${prestamoAbierto.trabajador_solicitante}.`
+      const prestamoAbierto = await Prestamo.findOne({
+        where: {
+          activo_id: idActual,
+          estado_prestamo: ['ACTIVO', 'VENCIDO']
+        },
+        transaction: transaccion
       });
+
+      if (prestamoAbierto) {
+        await transaccion.rollback();
+        return res.status(400).json({
+          exito: false,
+          mensaje: `El equipo '${activo.codigo}' ya se encuentra en préstamo activo a nombre de ${prestamoAbierto.trabajador_solicitante}.`
+        });
+      }
+
+      const nuevoPrestamo = await Prestamo.create(
+        {
+          ...datosComunes,
+          activo_id: idActual,
+          fecha_salida: fechaSalidaComun,
+          estado_prestamo: 'ACTIVO'
+        },
+        { transaction: transaccion }
+      );
+
+      codigosRegistrados.push(activo.codigo);
+      prestamosCreados.push(nuevoPrestamo.id);
     }
 
-    const nuevoPrestamo = await Prestamo.create({
-      ...req.body,
-      estado_prestamo: 'ACTIVO'
-    });
+    await transaccion.commit();
 
-    const prestamoConActivo = await Prestamo.findByPk(nuevoPrestamo.id, {
+    const registrosCompletos = await Prestamo.findAll({
+      where: { id: prestamosCreados },
       include: [{ model: Activo, as: 'activo' }]
     });
 
     return res.status(201).json({
       exito: true,
-      mensaje: `Salida de préstamo registrada para el activo '${activo.codigo}'.`,
-      datos: prestamoConActivo
+      mensaje: `Préstamo registrado para ${codigosRegistrados.length} equipo(s): ${codigosRegistrados.join(', ')}.`,
+      datos: registrosCompletos
     });
   } catch (error) {
+    await transaccion.rollback();
     return next(error);
   }
 };

@@ -8,10 +8,13 @@ const jornadaActiva = ref(null);
 
 const modalNuevaJornada = ref(false);
 const modalRegistrarChequeo = ref(false);
+const modalConfirmarEliminar = ref(false);
+const jornadaAEliminar = ref(null);
 const guardando = ref(false);
+const eliminando = ref(false);
 
 const formularioJornada = reactive({
-  codigo_formulario: 'IR-SI-FO-001',
+  codigo_formulario: 'MANT-PREV',
   titulo_actividad: 'Revisión de SO, archivos temporales, caché y políticas de uso',
   descripcion_tareas: '',
   departamento_objetivo: 'TODOS LOS DEPARTAMENTOS',
@@ -119,6 +122,40 @@ const guardarChequeoConFirma = async () => {
   }
 };
 
+const solicitarEliminarJornada = (jornada) => {
+  jornadaAEliminar.value = jornada;
+  modalConfirmarEliminar.value = true;
+};
+
+const eliminarJornada = async () => {
+  if (!jornadaAEliminar.value) return;
+  eliminando.value = true;
+  try {
+    const res = await peticion(`/mantenimientos/${jornadaAEliminar.value.id}`, {
+      method: 'DELETE'
+    });
+    notificaciones.add({
+      title: 'Jornada Eliminada',
+      description: res.mensaje,
+      color: 'emerald'
+    });
+    if (jornadaActiva.value?.id === jornadaAEliminar.value.id) {
+      jornadaActiva.value = null;
+    }
+    modalConfirmarEliminar.value = false;
+    jornadaAEliminar.value = null;
+    await cargarDatos();
+  } catch (error) {
+    notificaciones.add({
+      title: 'Error al eliminar',
+      description: error?.data?.mensaje || 'No se pudo eliminar la jornada.',
+      color: 'rose'
+    });
+  } finally {
+    eliminando.value = false;
+  }
+};
+
 const exportarExcelJornada = async (jornada) => {
   try {
     await descargarArchivoExcel(
@@ -150,12 +187,11 @@ onMounted(() => {
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div>
         <div class="flex items-center gap-2">
-          <h1 class="text-2xl font-extrabold text-white">
+          <h1 class="text-2xl font-extrabold text-zinc-950 dark:text-white">
             Mantenimiento Preventivo Digital
           </h1>
-          <UBadge color="violet" variant="subtle">IR-SI-FO-001</UBadge>
         </div>
-        <p class="text-sm text-slate-400">
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">
           Lista de chequeo en planta con captura de firma digital táctil y exportación a Excel multi-pestaña
         </p>
       </div>
@@ -173,12 +209,12 @@ onMounted(() => {
           color="emerald"
           variant="soft"
           icon="i-heroicons-arrow-down-tray"
-          label="Exportar Excel IR-SI-FO-001"
+          label="Exportar Excel"
           @click="exportarExcelJornada(jornadaActiva)"
         />
         <UButton
           v-if="jornadaActiva"
-          color="violet"
+          color="primary"
           icon="i-heroicons-pencil"
           label="Registrar Chequeo y Firma"
           @click="modalRegistrarChequeo = true"
@@ -194,25 +230,35 @@ onMounted(() => {
         class="p-4 rounded-2xl cursor-pointer transition-all border"
         :class="
           jornadaActiva?.id === jornada.id
-            ? 'bg-violet-950/40 border-violet-500 shadow-lg shadow-violet-500/15'
-            : 'bg-slate-900/60 border-violet-500/20 hover:border-violet-500/40'
+            ? 'bg-cobalto-50 dark:bg-cobalto-500/15 border-cobalto-500 shadow-lg shadow-violet-500/15'
+            : 'bg-white dark:bg-zinc-900/90 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:border-zinc-700'
         "
         @click="jornadaActiva = jornada"
       >
-        <div class="flex items-center justify-between mb-2">
-          <UBadge color="violet" variant="subtle" size="xs">
-            {{ jornada.codigo_formulario }}
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <UBadge color="primary" variant="subtle" size="xs">
+            {{ jornada.codigo_formulario === 'IR-SI-FO-001' ? 'Mantenimiento Preventivo' : jornada.codigo_formulario }}
           </UBadge>
-          <span class="text-xs text-slate-400">{{ jornada.fecha_inicio }}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ jornada.fecha_inicio }}</span>
+            <UButton
+              size="2xs"
+              color="rose"
+              variant="ghost"
+              icon="i-heroicons-trash"
+              aria-label="Eliminar jornada"
+              @click.stop="solicitarEliminarJornada(jornada)"
+            />
+          </div>
         </div>
-        <h3 class="font-bold text-white text-sm line-clamp-2">
+        <h3 class="font-bold text-zinc-950 dark:text-white text-sm line-clamp-2">
           {{ jornada.titulo_actividad }}
         </h3>
-        <p class="text-xs text-violet-300 mt-1">
+        <p class="text-xs text-cobalto-600 dark:text-cobalto-400 mt-1">
           Técnico: {{ jornada.tecnico_responsable }}
         </p>
-        <p class="text-xs text-slate-400 mt-2">
-          Equipos chequeados: <strong class="text-white">{{ jornada.registros_ejecucion?.length || 0 }}</strong>
+        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-2">
+          Equipos chequeados: <strong class="text-zinc-950 dark:text-white">{{ jornada.registros_ejecucion?.length || 0 }}</strong>
         </p>
       </div>
     </div>
@@ -222,10 +268,10 @@ onMounted(() => {
       <template #header>
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 class="font-bold text-white">
+            <h2 class="font-bold text-zinc-950 dark:text-white">
               Planilla de Ejecución: {{ jornadaActiva.titulo_actividad }}
             </h2>
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
               Departamento objetivo: {{ jornadaActiva.departamento_objetivo }} | Responsable: {{ jornadaActiva.tecnico_responsable }}
             </p>
           </div>
@@ -238,7 +284,7 @@ onMounted(() => {
       <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
-            <tr class="border-b border-violet-500/20 text-xs uppercase text-violet-300">
+            <tr class="border-b border-zinc-200 dark:border-zinc-800 text-xs uppercase text-cobalto-600 dark:text-cobalto-400">
               <th class="py-3 px-3">Activo</th>
               <th class="py-3 px-3">Usuario Custodio</th>
               <th class="py-3 px-3">Departamento</th>
@@ -248,33 +294,33 @@ onMounted(() => {
               <th class="py-3 px-3">Firma de Conformidad</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-800/80">
+          <tbody class="divide-y divide-zinc-200 dark:divide-zinc-800/80">
             <tr
               v-for="reg in jornadaActiva.registros_ejecucion"
               :key="reg.id"
             >
-              <td class="py-3 px-3 font-mono font-bold text-violet-300">
+              <td class="py-3 px-3 font-mono font-bold text-cobalto-600 dark:text-cobalto-400">
                 {{ reg.activo?.codigo }} — {{ reg.activo?.marca }}
               </td>
-              <td class="py-3 px-3 text-white font-medium">{{ reg.usuario_atendido }}</td>
-              <td class="py-3 px-3 text-slate-300">{{ reg.departamento }}</td>
+              <td class="py-3 px-3 text-zinc-950 dark:text-white font-medium">{{ reg.usuario_atendido }}</td>
+              <td class="py-3 px-3 text-zinc-600 dark:text-zinc-300">{{ reg.departamento }}</td>
               <td class="py-3 px-3">
                 <UBadge :color="reg.ejecutado === 'SI' ? 'emerald' : 'rose'" variant="subtle">
                   {{ reg.ejecutado }}
                 </UBadge>
               </td>
-              <td class="py-3 px-3 text-slate-400">{{ reg.fecha_ejecucion }}</td>
-              <td class="py-3 px-3 text-slate-300">{{ reg.observaciones || 'Conforme' }}</td>
+              <td class="py-3 px-3 text-zinc-500 dark:text-zinc-400">{{ reg.fecha_ejecucion }}</td>
+              <td class="py-3 px-3 text-zinc-600 dark:text-zinc-300">{{ reg.observaciones || 'Conforme' }}</td>
               <td class="py-3 px-3">
                 <img
                   :src="reg.firma_conformidad_base64"
                   alt="Firma Digital"
-                  class="h-11 bg-white rounded-lg p-1 border border-violet-500/40"
+                  class="h-11 bg-white rounded-lg p-1 border border-zinc-300 dark:border-zinc-700"
                 />
               </td>
             </tr>
             <tr v-if="!jornadaActiva.registros_ejecucion?.length">
-              <td colspan="7" class="py-8 text-center text-slate-400">
+              <td colspan="7" class="py-8 text-center text-zinc-500 dark:text-zinc-400">
                 Aún no hay equipos firmados en esta jornada. Haz clic en "Registrar Chequeo y Firma".
               </td>
             </tr>
@@ -287,7 +333,7 @@ onMounted(() => {
     <UModal v-model="modalNuevaJornada">
       <UCard>
         <template #header>
-          <h3 class="font-bold text-white">Nueva Jornada de Mantenimiento (IR-SI-FO-001)</h3>
+          <h3 class="font-bold text-zinc-950 dark:text-white">Nueva Jornada de Mantenimiento Preventivo</h3>
         </template>
         <form class="space-y-4" @submit.prevent="crearJornada">
           <UFormGroup label="Actividad Preventiva" required>
@@ -307,12 +353,17 @@ onMounted(() => {
               <UInput v-model="formularioJornada.tecnico_responsable" placeholder="Nombre del técnico IT" />
             </UFormGroup>
           </div>
-          <UFormGroup label="Fecha de Inicio" required>
-            <UInput v-model="formularioJornada.fecha_inicio" type="date" />
-          </UFormGroup>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <UFormGroup label="Fecha de Inicio" required>
+              <UInput v-model="formularioJornada.fecha_inicio" type="date" />
+            </UFormGroup>
+            <UFormGroup label="Código / Referencia (Opcional)">
+              <UInput v-model="formularioJornada.codigo_formulario" placeholder="Ej: MANT-PREV" />
+            </UFormGroup>
+          </div>
           <div class="flex justify-end gap-2 pt-2">
             <UButton color="gray" variant="ghost" label="Cancelar" @click="modalNuevaJornada = false" />
-            <UButton type="submit" color="violet" label="Crear Jornada" :loading="guardando" />
+            <UButton type="submit" color="primary" label="Crear Jornada" :loading="guardando" />
           </div>
         </form>
       </UCard>
@@ -322,7 +373,7 @@ onMounted(() => {
     <UModal v-model="modalRegistrarChequeo" :ui="{ width: 'sm:max-w-2xl' }">
       <UCard>
         <template #header>
-          <h3 class="font-bold text-white">
+          <h3 class="font-bold text-zinc-950 dark:text-white">
             Chequeo de Equipo y Firma Digital de Conformidad
           </h3>
         </template>
@@ -375,13 +426,36 @@ onMounted(() => {
             <UButton color="gray" variant="ghost" label="Cancelar" @click="modalRegistrarChequeo = false" />
             <UButton
               type="submit"
-              color="violet"
+              color="primary"
               icon="i-heroicons-check-badge"
               label="Guardar Chequeo y Firma"
               :loading="guardando"
             />
           </div>
         </form>
+      </UCard>
+    </UModal>
+    <!-- Modal: Confirmar Eliminación de Jornada -->
+    <UModal v-model="modalConfirmarEliminar">
+      <UCard>
+        <template #header>
+          <h3 class="font-bold text-rose-600 dark:text-rose-400">Eliminar Jornada de Mantenimiento</h3>
+        </template>
+        <p class="text-sm text-zinc-600 dark:text-zinc-300">
+          ¿Estás seguro de que deseas eliminar la jornada
+          <strong class="text-zinc-950 dark:text-white">{{ jornadaAEliminar?.titulo_actividad }}</strong>?
+          También se eliminarán sus registros de chequeo asociados.
+        </p>
+        <div class="flex justify-end gap-2 pt-4">
+          <UButton color="gray" variant="ghost" label="Cancelar" @click="modalConfirmarEliminar = false" />
+          <UButton
+            color="rose"
+            icon="i-heroicons-trash"
+            label="Sí, eliminar"
+            :loading="eliminando"
+            @click="eliminarJornada"
+          />
+        </div>
       </UCard>
     </UModal>
   </div>

@@ -5,8 +5,8 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/principal.css'],
   colorMode: {
-    preference: 'dark',
-    fallback: 'dark',
+    preference: 'light',
+    fallback: 'light',
     classSuffix: ''
   },
   devServer: {
@@ -30,7 +30,7 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' },
-        { name: 'theme-color', content: '#020617' },
+        { name: 'theme-color', content: '#4345F6' },
         {
           name: 'description',
           content: 'Aplicación Web Progresiva (PWA) para la Gestión Integral de Activos Informáticos, Mantenimientos, Insumos y Custodia de Industrias Rodanol, S.A.'

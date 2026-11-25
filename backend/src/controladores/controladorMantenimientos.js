@@ -75,6 +75,28 @@ export const crearJornadaMantenimiento = async (req, res, next) => {
   }
 };
 
+export const eliminarJornadaMantenimiento = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const jornada = await JornadaMantenimiento.findByPk(id);
+
+    if (!jornada) {
+      return res.status(404).json({
+        exito: false,
+        mensaje: 'La jornada de mantenimiento no existe.'
+      });
+    }
+
+    await jornada.destroy();
+    return res.status(200).json({
+      exito: true,
+      mensaje: 'Jornada de mantenimiento eliminada correctamente.'
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const registrarEjecucionConFirma = async (req, res, next) => {
   try {
     const { jornadaId } = req.params;

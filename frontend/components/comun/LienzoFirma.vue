@@ -24,17 +24,16 @@ const obtenerCoordenadas = (evento) => {
   const lienzo = referenciaLienzo.value;
   if (!lienzo) return { x: 0, y: 0 };
   const rectangulo = lienzo.getBoundingClientRect();
+  const escalaX = rectangulo.width > 0 ? lienzo.width / rectangulo.width : 1;
+  const escalaY = rectangulo.height > 0 ? lienzo.height / rectangulo.height : 1;
 
-  if ('touches' in evento && evento.touches.length > 0) {
-    return {
-      x: evento.touches[0].clientX - rectangulo.left,
-      y: evento.touches[0].clientY - rectangulo.top
-    };
-  }
+  const punto = 'touches' in evento && evento.touches.length > 0
+    ? evento.touches[0]
+    : evento;
 
   return {
-    x: evento.clientX - rectangulo.left,
-    y: evento.clientY - rectangulo.top
+    x: (punto.clientX - rectangulo.left) * escalaX,
+    y: (punto.clientY - rectangulo.top) * escalaY
   };
 };
 
@@ -96,7 +95,7 @@ onMounted(() => {
 <template>
   <div class="space-y-2 select-none">
     <div class="flex items-center justify-between">
-      <label class="text-xs font-semibold uppercase tracking-wider text-violet-300">
+      <label class="text-xs font-semibold uppercase tracking-wider text-cobalto-600 dark:text-cobalto-400">
         {{ etiqueta || 'Firma Digital de Conformidad (Firme con el dedo o puntero)' }}
       </label>
       <UButton
@@ -110,7 +109,7 @@ onMounted(() => {
     </div>
 
     <!-- Lienzo 100% Firme sin animaciones de flotación para precisión táctil -->
-    <div class="border-2 border-violet-500/40 rounded-xl overflow-hidden bg-white shadow-inner">
+    <div class="border-2 border-zinc-300 dark:border-zinc-700 rounded-xl overflow-hidden bg-white shadow-inner">
       <canvas
         ref="referenciaLienzo"
         width="520"
@@ -126,10 +125,10 @@ onMounted(() => {
       />
     </div>
 
-    <p class="text-[11px] text-slate-400 flex items-center justify-between">
+    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
       <span>La firma se almacena en Base64 para auditoría e incrustación en Excel.</span>
-      <span v-if="tieneTrazo" class="text-emerald-400 font-semibold">✓ Firma capturada</span>
-      <span v-else class="text-amber-400">Pendiente por firmar</span>
+      <span v-if="tieneTrazo" class="text-emerald-600 dark:text-emerald-400 font-semibold">✓ Firma capturada</span>
+      <span v-else class="text-amber-600 dark:text-amber-400">Pendiente por firmar</span>
     </p>
   </div>
 </template>

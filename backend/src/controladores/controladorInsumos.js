@@ -163,3 +163,35 @@ export const registrarSalidaInsumo = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const eliminarInsumo = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const insumo = await Insumo.findByPk(id);
+
+    if (!insumo) {
+      return res.status(404).json({
+        exito: false,
+        mensaje: 'El insumo solicitado no existe.'
+      });
+    }
+
+    const totalEntregas = await EntregaInsumo.count({ where: { insumo_id: id } });
+    if (totalEntregas > 0) {
+      return res.status(400).json({
+        exito: false,
+        mensaje: `No se puede eliminar '${insumo.codigo_referencia}' porque tiene ${totalEntregas} entrega(s) registrada(s) en el historial.`
+      });
+    }
+
+    const codigo = insumo.codigo_referencia;
+    await insumo.destroy();
+
+    return res.status(200).json({
+      exito: true,
+      mensaje: `Insumo '${codigo}' eliminado del catálogo.`
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

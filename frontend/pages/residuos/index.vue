@@ -75,16 +75,16 @@ onMounted(() => {
     <div class="ocultar-en-impresion space-y-6">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-extrabold text-white">
+          <h1 class="text-2xl font-extrabold text-zinc-950 dark:text-white">
             Banco de Pruebas y Residuos Electrónicos (RAEE)
           </h1>
-          <p class="text-sm text-slate-400">
+          <p class="text-sm text-zinc-500 dark:text-zinc-400">
             Control de canibalización de piezas, reciclaje electrónico y Actas de Desincorporación para auditoría
           </p>
         </div>
 
         <UButton
-          color="violet"
+          color="primary"
           icon="i-heroicons-document-Check"
           label="Registrar Baja / Acta RAEE"
           @click="modalNuevoResiduo = true"
@@ -99,7 +99,7 @@ onMounted(() => {
           class="tarjeta-cristal p-5 space-y-3"
         >
           <div class="flex items-center justify-between">
-            <span class="font-mono font-bold text-violet-300 text-sm">
+            <span class="font-mono font-bold text-cobalto-600 dark:text-cobalto-400 text-sm">
               {{ item.codigo_acta }}
             </span>
             <UBadge
@@ -117,32 +117,32 @@ onMounted(() => {
           </div>
 
           <div>
-            <p class="font-bold text-white text-base">
+            <p class="font-bold text-zinc-950 dark:text-white text-base">
               Activo {{ item.activo?.codigo }} — {{ item.activo?.tipo_activo }} {{ item.activo?.marca }} {{ item.activo?.modelo }}
             </p>
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
               Diagnóstico: {{ item.diagnostico_tecnico }}
             </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 text-xs bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+          <div class="grid grid-cols-2 gap-2 text-xs bg-zinc-50 dark:bg-zinc-950/60 p-3 rounded-xl border border-zinc-200 dark:border-zinc-800">
             <div>
-              <span class="text-rose-400 font-semibold block">Piezas Faltantes:</span>
-              <span class="text-slate-300">{{ item.piezas_faltantes || 'Ninguna' }}</span>
+              <span class="text-rose-600 dark:text-rose-400 font-semibold block">Piezas Faltantes:</span>
+              <span class="text-zinc-600 dark:text-zinc-300">{{ item.piezas_faltantes || 'Ninguna' }}</span>
             </div>
             <div>
-              <span class="text-emerald-400 font-semibold block">Componentes Recuperados:</span>
-              <span class="text-slate-300">{{ item.componentes_recuperados || 'Ninguno' }}</span>
+              <span class="text-emerald-600 dark:text-emerald-400 font-semibold block">Componentes Recuperados:</span>
+              <span class="text-zinc-600 dark:text-zinc-300">{{ item.componentes_recuperados || 'Ninguno' }}</span>
             </div>
           </div>
 
           <div class="flex items-center justify-between pt-2">
-            <span class="text-xs text-slate-400">
+            <span class="text-xs text-zinc-500 dark:text-zinc-400">
               Evaluador: {{ item.tecnico_evaluador }} ({{ item.fecha_ingreso_banco }})
             </span>
             <UButton
               size="xs"
-              color="violet"
+              color="primary"
               variant="soft"
               icon="i-heroicons-printer"
               label="Imprimir Acta de Desincorporación"
@@ -153,7 +153,7 @@ onMounted(() => {
       </div>
 
       <UCard v-if="!listaResiduos.length" class="text-center py-8">
-        <p class="text-slate-400 text-sm">
+        <p class="text-zinc-500 dark:text-zinc-400 text-sm">
           No hay equipos registrados en el Banco de Pruebas o Residuos Electrónicos RAEE.
         </p>
       </UCard>
@@ -210,7 +210,7 @@ onMounted(() => {
     <UModal v-model="modalNuevoResiduo" :ui="{ width: 'sm:max-w-2xl' }">
       <UCard>
         <template #header>
-          <h3 class="font-bold text-white">Registrar Equipo en Banco de Pruebas / RAEE</h3>
+          <h3 class="font-bold text-zinc-950 dark:text-white">Registrar Equipo en Banco de Pruebas / RAEE</h3>
         </template>
         <form class="space-y-4" @submit.prevent="guardarRegistroRaee">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -269,7 +269,7 @@ onMounted(() => {
 
           <div class="flex justify-end gap-2">
             <UButton color="gray" variant="ghost" label="Cancelar" @click="modalNuevoResiduo = false" />
-            <UButton type="submit" color="violet" label="Generar Acta RAEE" :loading="guardando" />
+            <UButton type="submit" color="primary" label="Generar Acta RAEE" :loading="guardando" />
           </div>
         </form>
       </UCard>

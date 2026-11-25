@@ -165,10 +165,10 @@ const guardarActivo = async () => {
       <template #header>
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="text-lg font-bold text-white">
+            <h3 class="text-lg font-bold text-zinc-950 dark:text-white">
               {{ activoEditar ? `Editar Activo ${activoEditar.codigo}` : 'Registrar Nuevo Activo Informático' }}
             </h3>
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">
               Ficha técnica de hardware y control ligero de garantía
             </p>
           </div>
@@ -227,8 +227,8 @@ const guardarActivo = async () => {
         </div>
 
         <!-- Sección 2: Características Técnicas -->
-        <div class="p-4 rounded-xl bg-slate-950/70 border border-violet-500/20 space-y-3">
-          <p class="text-xs font-bold uppercase tracking-wider text-violet-300">
+        <div class="p-4 rounded-xl bg-zinc-50 dark:bg-zinc-950/70 border border-zinc-200 dark:border-zinc-800 space-y-3">
+          <p class="text-xs font-bold uppercase tracking-wider text-cobalto-600 dark:text-cobalto-400">
             Especificaciones Técnicas (Hardware / Red)
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -254,9 +254,9 @@ const guardarActivo = async () => {
         </div>
 
         <!-- Sección 3: Módulo 6 - Control Ligero de Garantías -->
-        <div class="p-4 rounded-xl bg-violet-950/20 border border-violet-500/30 space-y-3">
+        <div class="p-4 rounded-xl bg-cobalto-50/60 dark:bg-cobalto-500/10 border border-cobalto-200 dark:border-cobalto-500/30 space-y-3">
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <p class="text-xs font-bold uppercase tracking-wider text-violet-300">
+            <p class="text-xs font-bold uppercase tracking-wider text-cobalto-600 dark:text-cobalto-400">
               Módulo 6: Control Ligero de Garantía
             </p>
             <UBadge :color="vistaPreviaGarantia.color_insignia" variant="subtle" size="xs">
@@ -289,7 +289,7 @@ const guardarActivo = async () => {
           />
           <UButton
             type="submit"
-            color="violet"
+            color="primary"
             icon="i-heroicons-check"
             :loading="guardando"
             :label="activoEditar ? 'Guardar Cambios' : 'Registrar Activo'"
