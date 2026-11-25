@@ -1,5 +1,6 @@
 <script setup>
 const { peticion } = usarApi();
+const { tienePermiso } = usarSesion();
 const notificaciones = useToast();
 
 const listaInsumos = ref([]);
@@ -222,7 +223,7 @@ onMounted(() => {
         </p>
       </div>
 
-      <div class="flex gap-2">
+      <div v-if="tienePermiso('insumos', 'editar')" class="flex gap-2">
         <UButton
           color="gray"
           variant="soft"
@@ -283,7 +284,7 @@ onMounted(() => {
               {{ insumo.cantidad_actual <= insumo.cantidad_minima ? 'STOCK CRÍTICO' : 'DISPONIBLE' }}
             </UBadge>
           </div>
-          <div class="flex items-center gap-2">
+          <div v-if="tienePermiso('insumos', 'editar')" class="flex items-center gap-2">
             <UButton
               class="flex-1"
               size="xs"

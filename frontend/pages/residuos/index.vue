@@ -1,5 +1,6 @@
 <script setup>
 const { peticion } = usarApi();
+const { tienePermiso } = usarSesion();
 const notificaciones = useToast();
 
 const listaResiduos = ref([]);
@@ -84,6 +85,7 @@ onMounted(() => {
         </div>
 
         <UButton
+          v-if="tienePermiso('residuos', 'editar')"
           color="primary"
           icon="i-heroicons-document-Check"
           label="Registrar Baja / Acta RAEE"

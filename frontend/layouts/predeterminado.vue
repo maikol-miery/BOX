@@ -2,6 +2,7 @@
 const route = useRoute()
 const colorMode = useColorMode()
 const { peticion } = usarApi()
+const { usuarioActual, esAdmin, tienePermiso, cerrarSesion, cargarSesionLocal } = usarSesion()
 const menuMovilAbierto = ref(false)
 const modalEscaner = ref(false)
 const procesandoEscaneo = ref(false)
@@ -18,6 +19,7 @@ const verificarEstadoServidor = async () => {
 }
 
 onMounted(() => {
+  cargarSesionLocal()
   verificarEstadoServidor()
   intervaloEstado = setInterval(verificarEstadoServidor, 30000)
 })
@@ -33,14 +35,28 @@ const alternarTema = () => {
 }
 
 const enlacesNavegacion = [
-  { nombre: 'Tablero Principal', ruta: '/', icono: 'i-heroicons-squares-2x2', descripcion: 'Métricas y alertas' },
-  { nombre: 'Parque Informático', ruta: '/activos', icono: 'i-heroicons-computer-desktop', descripcion: 'Activos, QR y Garantías' },
-  { nombre: 'Etiquetas QR', ruta: '/activos/etiquetas', icono: 'i-heroicons-qr-code', descripcion: 'Impresión para planta' },
-  { nombre: 'Mantenimiento Preventivo', ruta: '/mantenimientos', icono: 'i-heroicons-wrench-screwdriver', descripcion: 'Chequeo, firmas y Excel' },
-  { nombre: 'Insumos de Impresión', ruta: '/insumos', icono: 'i-heroicons-swatch', descripcion: 'Tóners y reemplazos' },
-  { nombre: 'Préstamos y Custodia', ruta: '/prestamos', icono: 'i-heroicons-arrows-right-left', descripcion: 'Equipos rotativos' },
-  { nombre: 'Banco de Pruebas y RAEE', ruta: '/residuos', icono: 'i-heroicons-cpu-chip', descripcion: 'Desincorporación y reciclaje' }
+  { modulo: 'tablero', nombre: 'Tablero Principal', ruta: '/', icono: 'i-heroicons-squares-2x2', descripcion: 'Métricas y alertas' },
+  { modulo: 'activos', nombre: 'Parque Informático', ruta: '/activos', icono: 'i-heroicons-computer-desktop', descripcion: 'Activos, QR y Garantías' },
+  { modulo: 'etiquetas', nombre: 'Etiquetas QR', ruta: '/activos/etiquetas', icono: 'i-heroicons-qr-code', descripcion: 'Impresión para planta' },
+  { modulo: 'mantenimientos', nombre: 'Mantenimiento Preventivo', ruta: '/mantenimientos', icono: 'i-heroicons-wrench-screwdriver', descripcion: 'Chequeo, firmas y Excel' },
+  { modulo: 'insumos', nombre: 'Insumos de Impresión', ruta: '/insumos', icono: 'i-heroicons-swatch', descripcion: 'Tóners y reemplazos' },
+  { modulo: 'prestamos', nombre: 'Préstamos y Custodia', ruta: '/prestamos', icono: 'i-heroicons-arrows-right-left', descripcion: 'Equipos rotativos' },
+  { modulo: 'residuos', nombre: 'Banco de Pruebas y RAEE', ruta: '/residuos', icono: 'i-heroicons-cpu-chip', descripcion: 'Desincorporación y reciclaje' }
 ]
+
+const enlacesVisibles = computed(() => {
+  const filtrados = enlacesNavegacion.filter((item) => tienePermiso(item.modulo, 'ver'))
+  if (esAdmin.value) {
+    filtrados.push({
+      modulo: 'usuarios_admin',
+      nombre: 'Cuentas y Permisos',
+      ruta: '/usuarios',
+      icono: 'i-heroicons-users',
+      descripcion: 'Roles por módulo'
+    })
+  }
+  return filtrados
+})
 
 const esActivo = (ruta) => route.path === ruta
 
@@ -99,7 +115,7 @@ watch(() => route.fullPath, () => {
 
       <nav class="flex-1 px-4 py-5 space-y-1.5 overflow-y-auto">
         <NuxtLink
-          v-for="item in enlacesNavegacion"
+          v-for="item in enlacesVisibles"
           :key="item.ruta"
           :to="item.ruta"
           class="flex items-center gap-3.5 px-3.5 py-3 rounded-xl transition-all duration-150 group border"
@@ -144,6 +160,28 @@ watch(() => route.fullPath, () => {
             Cambiar
           </span>
         </button>
+
+        <div
+          v-if="usuarioActual"
+          class="flex items-center justify-between gap-2 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-zinc-900/80 border border-zinc-200 dark:border-zinc-800"
+        >
+          <div class="min-w-0">
+            <p class="text-xs font-bold text-zinc-950 dark:text-white truncate">
+              {{ usuarioActual.nombre_completo }}
+            </p>
+            <p class="text-[10px] text-zinc-500 dark:text-zinc-400">
+              @{{ usuarioActual.nombre_usuario }} · {{ usuarioActual.rol }}
+            </p>
+          </div>
+          <UButton
+            size="xs"
+            color="rose"
+            variant="ghost"
+            icon="i-heroicons-arrow-right-on-rectangle"
+            title="Cerrar sesión"
+            @click="cerrarSesion()"
+          />
+        </div>
 
         <div class="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400 px-1">
           <span>Departamento de IT</span>
@@ -251,7 +289,7 @@ watch(() => route.fullPath, () => {
 
         <nav class="flex-1 py-4 space-y-2 overflow-y-auto">
           <NuxtLink
-            v-for="item in enlacesNavegacion"
+            v-for="item in enlacesVisibles"
             :key="item.ruta"
             :to="item.ruta"
             class="flex items-center gap-3 px-3.5 py-3 rounded-xl border"

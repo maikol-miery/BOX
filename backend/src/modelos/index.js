@@ -6,6 +6,7 @@ import { Insumo } from './Insumo.js';
 import { EntregaInsumo } from './EntregaInsumo.js';
 import { Prestamo } from './Prestamo.js';
 import { ResiduoElectronico } from './ResiduoElectronico.js';
+import { Usuario } from './Usuario.js';
 
 // 1. Relaciones de Mantenimiento Preventivo (IR-SI-FO-001)
 JornadaMantenimiento.hasMany(RegistroMantenimiento, {
@@ -79,5 +80,6 @@ export {
   Insumo,
   EntregaInsumo,
   Prestamo,
-  ResiduoElectronico
+  ResiduoElectronico,
+  Usuario
 };

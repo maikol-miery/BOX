@@ -1,5 +1,6 @@
 <script setup>
 const { peticion } = usarApi();
+const { tienePermiso } = usarSesion();
 const notificaciones = useToast();
 
 const cargando = ref(false);
@@ -120,6 +121,7 @@ onMounted(() => {
           label="Imprimir Etiquetas QR"
         />
         <UButton
+          v-if="tienePermiso('activos', 'editar')"
           color="primary"
           icon="i-heroicons-plus"
           label="Nuevo Activo"
@@ -229,6 +231,7 @@ onMounted(() => {
               label="Hoja de Vida"
             />
             <UButton
+              v-if="tienePermiso('activos', 'editar')"
               size="xs"
               color="gray"
               variant="ghost"

@@ -1,5 +1,6 @@
 <script setup>
 const { peticion, descargarArchivoExcel } = usarApi();
+const { tienePermiso } = usarSesion();
 const notificaciones = useToast();
 
 const listaJornadas = ref([]);
@@ -198,6 +199,7 @@ onMounted(() => {
 
       <div class="flex flex-wrap gap-2">
         <UButton
+          v-if="tienePermiso('mantenimientos', 'editar')"
           color="gray"
           variant="soft"
           icon="i-heroicons-plus-circle"
@@ -213,7 +215,7 @@ onMounted(() => {
           @click="exportarExcelJornada(jornadaActiva)"
         />
         <UButton
-          v-if="jornadaActiva"
+          v-if="jornadaActiva && tienePermiso('mantenimientos', 'editar')"
           color="primary"
           icon="i-heroicons-pencil"
           label="Registrar Chequeo y Firma"
@@ -242,6 +244,7 @@ onMounted(() => {
           <div class="flex items-center gap-1.5">
             <span class="text-xs text-zinc-500 dark:text-zinc-400">{{ jornada.fecha_inicio }}</span>
             <UButton
+              v-if="tienePermiso('mantenimientos', 'editar')"
               size="2xs"
               color="rose"
               variant="ghost"

@@ -1,6 +1,7 @@
 <script setup>
 const ruta = useRoute();
 const { peticion } = usarApi();
+const { tienePermiso } = usarSesion();
 const notificaciones = useToast();
 
 const listaPrestamos = ref([]);
@@ -338,6 +339,7 @@ onMounted(async () => {
           @click="imprimirPrestamos"
         />
         <UButton
+          v-if="tienePermiso('prestamos', 'editar')"
           color="gray"
           variant="soft"
           icon="i-heroicons-qr-code"
@@ -345,6 +347,7 @@ onMounted(async () => {
           @click="abrirNuevoPrestamo(true)"
         />
         <UButton
+          v-if="tienePermiso('prestamos', 'editar')"
           color="primary"
           icon="i-heroicons-hand-raised"
           label="Registrar Salida de Préstamo"
@@ -497,7 +500,7 @@ onMounted(async () => {
               </td>
               <td class="py-3 px-3">
                 <UButton
-                  v-if="prestamo.estado_semaforo !== 'DEVUELTO'"
+                  v-if="prestamo.estado_semaforo !== 'DEVUELTO' && tienePermiso('prestamos', 'editar')"
                   size="xs"
                   color="emerald"
                   variant="soft"
